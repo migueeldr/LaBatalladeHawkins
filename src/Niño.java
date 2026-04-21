@@ -8,7 +8,7 @@ public class Niño extends Thread{
     //zonas seguras
     private final int calle_principal=0;
     private final int sotano_byers=1;
-    private final int radio_wsk=2;
+    private final int radio_wsqk=2;
     //zonas inseguras
     private final int bosque=3;
     private final int laboratorio=4;
@@ -52,7 +52,7 @@ public class Niño extends Thread{
         while(true){
 
             setUbicacion(sotano_byers);
-            log.escribir(this.id + " ha entrado en el SÓTANO BYERS."); // [cite: 99]
+            log.escribir(this.id + " ha entrado en el Sótano Byers.");
             try{
                 long aleatorio= (long) (Math.random() * 1000+1000);
                 sleep(aleatorio);
@@ -65,11 +65,38 @@ public class Niño extends Thread{
                 long aleatorio= (long) (Math.random() * 2000+3000);
                 sleep(aleatorio);
             }
-            catch(Exception e){}
+            catch(Exception e){
+                mapa.ataque_niño();
+            }
             setLleva_sangre(true);
-            mapa.entrar_sangre(portal_elegido);
+            mapa.entregar_sangre(portal_elegido);
+            setUbicacion(radio_wsqk);
+            try{
+                sleep((long)(Math.random() * 2000+2000));
+            }
+            catch(Exception e){}
+            setUbicacion(calle_principal);
+            try{
+                sleep((long)(Math.random() * 2000+3000));
+            }
+            catch(Exception e){}
 
     }}
 
 
 }
+//Alternativa de chatgpt para el run
+//            if(mapa.sobreviveAlAtaque(this)) {
+//                setLleva_sangre(true);
+//                mapa.regresar_y_entregar(this, elegido);
+//
+//                // --- DESCANSO ---
+//                setUbicacion(radio_wsqk);
+//                Thread.sleep((long) (Math.random() * 2000 + 2000));
+//
+//                setUbicacion(calle_principal);
+//                Thread.sleep((long) (Math.random() * 2000 + 3000));
+//            } else {
+//                // Si es capturado, el Mapa lo mandará a la Colmena
+//                mapa.ir_a_colmena(this);
+//            }
