@@ -63,6 +63,7 @@ public class Demogorgon extends Thread{
                         setUbicacion(colmena);
                         sleep((long) (Math.random() * 500 + 500));
                         incrementarCapturas();
+                        mapa.incrementar_contador_capturas();
                     }
 
 

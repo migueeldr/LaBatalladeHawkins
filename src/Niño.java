@@ -27,6 +27,7 @@ public class Niño extends Thread{
         this.log = log;
         this.lleva_sangre = false;
         this.ubicacion = 0;
+        mapa.addNiñoCallePrincipal(this);
         esta_atacado=false;
         capturado=false;
     }
@@ -65,9 +66,9 @@ public class Niño extends Thread{
     }
 
     public void run(){
-        while(true){
 
-            setUbicacion(sotano_byers);
+        while(true){
+            mapa.moverNiño(this, mapa.getZonaCallePrincipal(), mapa.getZonaSotanoByers());
 
             try{
                 long aleatorio= (long) (Math.random() * 1000+1000);
@@ -75,32 +76,35 @@ public class Niño extends Thread{
             }
             catch(Exception e){}
             int portal_elegido=elegirPortal();
-            mapa.entrar_portal(portal_elegido);
-            setUbicacion(portal_elegido);
+            mapa.entrar_portal(this, portal_elegido);
             try{
                 long aleatorio= (long) (Math.random() * 2000+3000);
                 sleep(aleatorio);
             }
             catch(Exception e){
             }
-            if (capturado){
+
+            if (getCapturado()){
                 setUbicacion(colmena);
                 mapa.esperar_rescate(this);
             }
             else{
             setLleva_sangre(true);
-            mapa.entrar_portal_vuelta(portal_elegido);
-            mapa.entregar_sangre();
-            setUbicacion(radio_wsqk);
+            mapa.entrar_portal_vuelta(this, portal_elegido);}
+            mapa.entregar_sangre(this);
             try{
                 sleep((long)(Math.random() * 2000+2000));
             }
             catch(Exception e){}
-            setUbicacion(calle_principal);
+            mapa.descanso(this);
             try{
                 sleep((long)(Math.random() * 2000+3000));
             }
-            catch(Exception e){}}
+            catch(Exception e){}
 
-    }}
+    }
+
+    }
 }
+
+
