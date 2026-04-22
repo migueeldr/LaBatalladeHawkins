@@ -2,6 +2,8 @@ public class Niño extends Thread{
     private String id;
     private boolean lleva_sangre;
     private int ubicacion;
+    private boolean esta_atacado;
+    private boolean capturado;
     private final Ciudad mapa;
     private final LogHawkins log;
 
@@ -25,9 +27,23 @@ public class Niño extends Thread{
         this.log = log;
         this.lleva_sangre = false;
         this.ubicacion = 0;
+        esta_atacado=false;
+        capturado=false;
     }
     public String getIdNiño(){
         return id;
+    }
+    public synchronized boolean getCapturado(){
+        return capturado;
+    }
+    public synchronized void setCapturado(boolean capturado){
+        this.capturado=capturado;
+    }
+    public synchronized boolean getEsta_atacado(){
+        return esta_atacado;
+    }
+    public synchronized void setEsta_atacado(boolean esta_atacado){
+        this.esta_atacado = esta_atacado;
     }
     //usaremos synchronized para que no nos devuelva datos incorrectos en los atributos que pueden cambiar
     public synchronized boolean getLleva_sangre(){
@@ -52,7 +68,7 @@ public class Niño extends Thread{
         while(true){
 
             setUbicacion(sotano_byers);
-            log.escribir(this.id + " ha entrado en el Sótano Byers.");
+
             try{
                 long aleatorio= (long) (Math.random() * 1000+1000);
                 sleep(aleatorio);
@@ -66,10 +82,15 @@ public class Niño extends Thread{
                 sleep(aleatorio);
             }
             catch(Exception e){
-                mapa.ataque_niño();
             }
+            if (capturado){
+                setUbicacion(colmena);
+                mapa.esperar_rescate(this);
+            }
+            else{
             setLleva_sangre(true);
-            mapa.entregar_sangre(portal_elegido);
+            mapa.entrar_portal_vuelta(portal_elegido);
+            mapa.entregar_sangre();
             setUbicacion(radio_wsqk);
             try{
                 sleep((long)(Math.random() * 2000+2000));
@@ -79,24 +100,7 @@ public class Niño extends Thread{
             try{
                 sleep((long)(Math.random() * 2000+3000));
             }
-            catch(Exception e){}
+            catch(Exception e){}}
 
     }}
-
-
 }
-//Alternativa de chatgpt para el run
-//            if(mapa.sobreviveAlAtaque(this)) {
-//                setLleva_sangre(true);
-//                mapa.regresar_y_entregar(this, elegido);
-//
-//                // --- DESCANSO ---
-//                setUbicacion(radio_wsqk);
-//                Thread.sleep((long) (Math.random() * 2000 + 2000));
-//
-//                setUbicacion(calle_principal);
-//                Thread.sleep((long) (Math.random() * 2000 + 3000));
-//            } else {
-//                // Si es capturado, el Mapa lo mandará a la Colmena
-//                mapa.ir_a_colmena(this);
-//            }
