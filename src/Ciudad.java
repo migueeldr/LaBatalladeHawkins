@@ -1,10 +1,10 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.*;
 
 import static java.lang.Thread.sleep;
 
@@ -22,6 +22,13 @@ public class Ciudad {
     private List<Niño> zonaCentroComercial = Collections.synchronizedList(new ArrayList<>());
     private List<Niño> zonaAlcantarillado = Collections.synchronizedList(new ArrayList<>());
     private List<Niño> zonaColmena = Collections.synchronizedList(new ArrayList<>());
+//
+    //creo que esto deberia ser private y hacer getters
+    public Portal portalBosque = new Portal(zona_sotano_byers,zonaBosque);
+    public Portal portaLaboratorio = new Portal(zona_sotano_byers,zonaLaboratorio);
+    public Portal portaCentroComercial = new Portal(zona_sotano_byers,zonaCentroComercial);
+    public Portal portaAlcantarillado = new Portal(zona_sotano_byers,zonaAlcantarillado);
+
     private List<Demogorgon> dem_Bosque=Collections.synchronizedList(new ArrayList<>());;
     private List<Demogorgon> dem_Laboratorio=Collections.synchronizedList(new ArrayList<>());;
     private List<Demogorgon> dem_CentroComercial=Collections.synchronizedList(new ArrayList<>());;
@@ -29,15 +36,117 @@ public class Ciudad {
     private List<Demogorgon> dem_Colmena=Collections.synchronizedList(new ArrayList<>());;
 
 
-    private CyclicBarrier portal_Bosque_Entrada= new CyclicBarrier(2);
-    private CyclicBarrier portal_Laboratorio_Entrada= new CyclicBarrier(3);
-    private CyclicBarrier portal_Centro_Comercial_Entrada=new CyclicBarrier(4);
-    private CyclicBarrier portal_Alcantarillado_Entrada= new CyclicBarrier(2);
-    private Semaphore semaforo_Bosque= new Semaphore(1,true);
-    private Semaphore semaforo_Laboratorio= new Semaphore(1,true);
-    private Semaphore semaforo_Centro_Comercial=new Semaphore(1,true);
-    private Semaphore semaforo_Alcantarillado= new Semaphore(1,true);
     private Semaphore semaforo_Contador= new Semaphore(1);
+
+    public class Portal {
+        private List<Niño> origen;
+        private List<Niño> destino;
+
+        private final ReentrantLock lock = new ReentrantLock(true);
+
+        private final Condition condHabitual = lock.newCondition();
+        private final Condition condContrario = lock.newCondition();
+
+        private int esperandoHawkins = 0;
+        private int esperndoUpsideDown = 0;
+
+        private int restantesGrupo = 0;   // hilos del grupo que quedan por cruzar
+        private boolean portalOcupado = false;
+
+        public Portal(List<Niño> origen,List<Niño> destino) { //no tengo claro como se manejan los lugares
+            this.origen = origen;
+            this.destino = destino;
+        }
+        public void cruzarHabitual(Niño n) throws InterruptedException {
+            lock.lock();
+            try {
+                esperandoHawkins++;
+
+
+                while (restantesGrupo == 0) {  //lo comprueban los hilos que entran despues de que pase un grupo
+                    if (esperandoHawkins >= 3 && esperndoUpsideDown == 0) {  //forma grupo cuando toca
+                        restantesGrupo = 3;
+                        condHabitual.signalAll();
+                    } else {
+                        condHabitual.await();
+                    }
+                }
+
+                esperandoHawkins--;
+
+            } finally {
+                lock.unlock();
+            }
+
+            // pasan de uno en uno
+            lock.lock();
+            try {
+                while (portalOcupado || esperndoUpsideDown > 0) {
+                    condHabitual.await();
+                }
+                portalOcupado = true;
+            } finally {
+                lock.unlock();
+            }
+
+            moverNiño(n, origen, destino);
+            n.setUbicacion(zona_GetId(destino));
+            cruzar(n);
+
+            lock.lock();
+            try {
+                portalOcupado = false;
+                restantesGrupo--;
+
+                condContrario.signalAll();
+                condHabitual.signalAll();
+
+            } finally {
+                lock.unlock();
+            }
+        }
+
+
+
+        public void cruzarContrario(Niño n) throws InterruptedException {
+            lock.lock();
+            try {
+                esperndoUpsideDown++;
+
+                while (portalOcupado) {
+                    condContrario.await();
+                }
+
+                esperndoUpsideDown--;
+                portalOcupado = true;
+
+            } finally {
+                lock.unlock();
+            }
+            moverNiño(n, destino, origen);
+            n.setUbicacion(zona_GetId(origen)); //me parece una mala decison lo de los numeros de las ubicaciones
+            cruzar(n);
+
+            lock.lock();
+            try {
+                portalOcupado = false;
+
+                // Prioridad contrarios
+                condContrario.signalAll();
+                condHabitual.signalAll();
+
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        //quitar print antes de entregar
+        private void cruzar(Niño  n) throws InterruptedException {
+            System.out.println("Hilo " + n.getIdNiño() + " cruzando...");
+            Thread.sleep(1000);
+            System.out.println("Hilo " + n.getIdNiño() + " ha cruzado");
+        }
+    }
 
 
 
@@ -124,94 +233,9 @@ public class Ciudad {
         destino.add(d);
     }
 
-    public void entrar_portal(Niño n, int portal){
-        if (portal==3){
-            try{
-                portal_Bosque_Entrada.await();
-                semaforo_Bosque.acquire();
-                sleep(1000);
-                semaforo_Bosque.release();
-                moverNiño(n, zona_sotano_byers, zonaBosque);
-                n.setUbicacion(3);
-            }
-            catch(Exception e){}
-        }
-        if (portal==4){
-            try{
-                portal_Laboratorio_Entrada.await();
-                semaforo_Laboratorio.acquire();
-                sleep(1000);
-                semaforo_Laboratorio.release();
-                moverNiño(n, zona_sotano_byers, zonaLaboratorio);
-                n.setUbicacion(4);
-            }
-            catch(Exception e){}
-        }
-        if (portal==5){
-            try{
-                portal_Centro_Comercial_Entrada.await();
-                semaforo_Centro_Comercial.acquire();
-                sleep(1000);
-                semaforo_Centro_Comercial.release();
-                moverNiño(n, zona_sotano_byers, zonaCentroComercial);
-                n.setUbicacion(5);
-            }
-            catch(Exception e){}
-        }
-        if (portal==6){
-            try{
-                portal_Alcantarillado_Entrada.await();
-                semaforo_Alcantarillado.acquire();
-                sleep(1000);
-                semaforo_Alcantarillado.release();
-                moverNiño(n, zona_sotano_byers, zonaAlcantarillado);
-                n.setUbicacion(6);
 
-            }
-            catch(Exception e){}
-        }
-    }
 
-    //tenemos que ver lo de la prioridad
 
-    public void entrar_portal_vuelta(Niño n, int portal){
-        if (portal==3){
-            try{
-                semaforo_Bosque.acquire();
-                sleep(1000);
-                semaforo_Bosque.release();
-            }
-            catch(Exception e){}
-            moverNiño(n, zonaBosque, zona_sotano_byers);
-        }
-        if (portal==4){
-            try{
-                semaforo_Laboratorio.acquire();
-                sleep(1000);
-                semaforo_Laboratorio.release();
-            }
-            catch(Exception e){}
-            moverNiño(n, zonaLaboratorio, zona_sotano_byers);
-        }
-        if (portal==5){
-            try{
-                semaforo_Centro_Comercial.acquire();
-                sleep(1000);
-                semaforo_Centro_Comercial.release();
-            }
-            catch(Exception e){}
-            moverNiño(n, zonaCentroComercial, zona_sotano_byers);
-        }
-        if (portal==6){
-            try{
-                semaforo_Alcantarillado.acquire();
-                sleep(1000);
-                semaforo_Alcantarillado.release();
-            }
-            catch(Exception e){}
-            moverNiño(n, zonaAlcantarillado, zona_sotano_byers);
-        }
-    }
     public void entregar_sangre(Niño n){
         try{
             moverNiño(n, zona_sotano_byers, zona_radio_wsqk);

@@ -59,10 +59,13 @@ public class Niño extends Thread{
     public synchronized void setUbicacion(int ubicacion){
         this.ubicacion = ubicacion;    }
 
-    public int elegirPortal(){
+    public Ciudad.Portal elegirPortal(){
         int portal_elegido= (int) (Math.random() * 4+3);
-        return portal_elegido;
-
+        if(portal_elegido==3){return mapa.portalBosque;}
+        if(portal_elegido==4){return mapa.portaLaboratorio;}
+        if(portal_elegido==5){return mapa.portaCentroComercial;}
+        if(portal_elegido==6){return mapa.portaAlcantarillado;}
+        return null;  //me pedia un return global, nunca se alcanza
     }
 
     public void run(){
@@ -75,8 +78,12 @@ public class Niño extends Thread{
                 sleep(aleatorio);
             }
             catch(Exception e){}
-            int portal_elegido=elegirPortal();
-            mapa.entrar_portal(this, portal_elegido);
+            Ciudad.Portal portal_elegido=elegirPortal();
+            try {
+                portal_elegido.cruzarHabitual(this);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             try{
                 long aleatorio= (long) (Math.random() * 2000+3000);
                 sleep(aleatorio);
@@ -90,7 +97,12 @@ public class Niño extends Thread{
             }
             else{
             setLleva_sangre(true);
-            mapa.entrar_portal_vuelta(this, portal_elegido);}
+                try {
+                    portal_elegido.cruzarContrario(this);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             mapa.entregar_sangre(this);
             try{
                 sleep((long)(Math.random() * 2000+2000));
