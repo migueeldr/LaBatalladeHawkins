@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.*;
@@ -90,7 +89,6 @@ public class Ciudad {
             }
 
             moverNiño(n, origen, destino);
-            n.setUbicacion(zona_GetId(destino));
             cruzar(n);
 
             lock.lock();
@@ -124,7 +122,6 @@ public class Ciudad {
                 lock.unlock();
             }
             moverNiño(n, destino, origen);
-            n.setUbicacion(zona_GetId(origen)); //me parece una mala decison lo de los numeros de las ubicaciones
             cruzar(n);
 
             lock.lock();
@@ -227,19 +224,88 @@ public class Ciudad {
     public synchronized void moverNiño(Niño n, List<Niño> origen, List<Niño> destino) {
         origen.remove(n);
         destino.add(n);
+        if (destino ==zona_calle_principal ) {n.setUbicacion(0);}
+        if (destino ==zona_sotano_byers ) {n.setUbicacion(1);}
+        if (destino ==zona_radio_wsqk ) {n.setUbicacion(2);}
+        if (destino ==zonaBosque ) {n.setUbicacion(3);}
+        if (destino ==zonaLaboratorio ) {n.setUbicacion(4);}
+        if (destino ==zonaCentroComercial ) {n.setUbicacion(5);}
+        if (destino ==zonaAlcantarillado ) {n.setUbicacion(6);}
+        if (destino ==zonaColmena ) {n.setUbicacion(7);}
+
+    }
+    public synchronized List<Niño> getListaUbicacionN(int n) {
+        if (n == 0 ) {return  getZonaCallePrincipal();}
+        if (n ==1 ) {return  getZonaSotanoByers();}
+        if (n ==2 ) {return  getZonaRadioWsqk();}
+        if (n ==3 ) {return  getZonaBosque();}
+        if (n ==4 ) {return  getZonaLaboratorio();}
+        if (n ==5 ) {return  getZonaCentroComercial();}
+        if (n ==6 ) {return  getZonaAlcantarillado();}
+        else  {return  getZonaColmena();}
+    }
+    public synchronized List<Demogorgon> getListaUbicacionD(int n) {
+
+        if (n ==3 ) {return  getDemBosque();}
+        if (n ==4 ) {return  getDemLaboratorio();}
+        if (n ==5 ) {return  getDemCentroComercial();}
+        if (n ==6 ) {return  getDemAlcantarillado();}
+        else  {return  getDemColmena();}
     }
     public synchronized void moverDemogorgon(Demogorgon d, List<Demogorgon> origen, List<Demogorgon> destino) {
         origen.remove(d);
         destino.add(d);
+        if (destino ==dem_Bosque ) {d.setUbicacion(3);}
+        if (destino ==dem_Laboratorio ) {d.setUbicacion(4);}
+        if (destino ==dem_CentroComercial ) {d.setUbicacion(5);}
+        if (destino ==dem_Alcantarillado ) {d.setUbicacion(6);}
+        if (destino ==dem_Colmena ) {d.setUbicacion(7);}
+    }
+    public synchronized Niño obtener_niño(int ubicacion){
+        int longitud= (getListaUbicacionN(ubicacion)).size();
+        int aleatorio= (int) (Math.random()*longitud);
+        if(getListaUbicacionN(ubicacion).get(aleatorio).getEsta_atacado()){
+            return null;
+        }
+        else{
+            getListaUbicacionN(ubicacion).get(aleatorio).setEsta_atacado(true);
+            return getListaUbicacionN(ubicacion).get(aleatorio);
+            }
     }
 
+    public boolean ataque_niño(Demogorgon d, Niño n) {
+        long tiempo_ataque= (long) (Math.random() * 1000+500);
+        try{n.sleep(tiempo_ataque);
+            d.sleep(tiempo_ataque);}
+        catch (Exception e){}
+        int aleatorio= (int) (Math.random()*3);
+        if (aleatorio==0){
+            n.setCapturado(true);
+
+            moverDemogorgon(d, getListaUbicacionD(d.getUbicacion()), dem_Colmena);
+            moverNiño(n, getListaUbicacionN(n.getUbicacion()), zonaColmena);
+            long tiempo_depositar= (long) (Math.random()*500+500);
+            try{n.sleep(tiempo_depositar);
+                d.sleep(tiempo_depositar);}
+            catch (Exception e){}
+            incrementar_contador_capturas();
+            n.setEsta_atacado(false);
+            return true;
+
+        }
+        else{
+
+            n.setCapturado(false);
+            n.setEsta_atacado(false);
+            return false;
+        }
+    }
 
 
 
     public void entregar_sangre(Niño n){
         try{
             moverNiño(n, zona_sotano_byers, zona_radio_wsqk);
-            n.setUbicacion(2);
             semaforo_Contador.acquire();
             contador_sangre++;
             n.setLleva_sangre(false);
@@ -250,7 +316,7 @@ public class Ciudad {
     }
     public void descanso(Niño n){
         moverNiño(n, zona_radio_wsqk, zona_calle_principal);
-        n.setUbicacion(0);
+
     }
 
 }

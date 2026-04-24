@@ -49,25 +49,22 @@ public class Demogorgon extends Thread{
 
     }
 
+
     public void run(){
         while(true){
             int zona=elegirZona();
-            setUbicacion(zona);
+            mapa.moverDemogorgon(this,mapa.getListaUbicacionD(getUbicacion()), mapa.getListaUbicacionD(zona));
             Niño victima=mapa.obtener_niño(ubicacion);
             if(victima!=null){
                 try{
-                    synchronized (victima) {
                     long tiempo_ataque= (long) (Math.random() * 1000+500);
                     sleep(tiempo_ataque);
-                    if (mapa.ataque_niño(victima)){
-                        setUbicacion(colmena);
-                        sleep((long) (Math.random() * 500 + 500));
+                    if (mapa.ataque_niño(this, victima)){
                         incrementarCapturas();
-                        mapa.incrementar_contador_capturas();
                     }
 
 
-                }}
+                }
                 catch(Exception e){}
             }
             else{

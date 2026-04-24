@@ -64,8 +64,7 @@ public class Niño extends Thread{
         if(portal_elegido==3){return mapa.portalBosque;}
         if(portal_elegido==4){return mapa.portaLaboratorio;}
         if(portal_elegido==5){return mapa.portaCentroComercial;}
-        if(portal_elegido==6){return mapa.portaAlcantarillado;}
-        return null;  //me pedia un return global, nunca se alcanza
+        else {return mapa.portaAlcantarillado;}
     }
 
     public void run(){
@@ -82,7 +81,7 @@ public class Niño extends Thread{
             try {
                 portal_elegido.cruzarHabitual(this);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+
             }
             try{
                 long aleatorio= (long) (Math.random() * 2000+3000);
@@ -92,7 +91,6 @@ public class Niño extends Thread{
             }
 
             if (getCapturado()){
-                setUbicacion(colmena);
                 mapa.esperar_rescate(this);
             }
             else{
