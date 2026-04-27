@@ -8,9 +8,13 @@ import java.util.concurrent.locks.*;
 import static java.lang.Thread.sleep;
 
 public class Ciudad {
+    private int creador_Demogorgon=1;
+    private Semaphore semaforo_crearDemogorgon=new Semaphore(1);
     private Niño niño;
     private Demogorgon demogorgon;
     private int contador_sangre;
+    private final LogHawkins log;
+    private Eventos eventos;
     private AtomicInteger contador_capturas;
     private List<Niño> zona_calle_principal = Collections.synchronizedList(new ArrayList<>());
     private List<Niño> zona_sotano_byers = Collections.synchronizedList(new ArrayList<>());
@@ -150,6 +154,7 @@ public class Ciudad {
     public Ciudad(){
         contador_capturas=new AtomicInteger(0);
         contador_sangre=0;
+        log=new LogHawkins();
     }
     public int getContador_capturas(){
         return contador_capturas.get();
@@ -165,6 +170,9 @@ public class Ciudad {
     }
     public void incrementar_contador_capturas(){
         contador_capturas.incrementAndGet();
+            if (getContador_capturas()%8==0){
+                crearDemogorgon();
+            }
     }
     public void decrementar_contador_capturas(){
         contador_capturas.decrementAndGet();
@@ -274,32 +282,40 @@ public class Ciudad {
     }
 
     public boolean ataque_niño(Demogorgon d, Niño n) {
+        n.interrupt();
         long tiempo_ataque= (long) (Math.random() * 1000+500);
-        try{n.sleep(tiempo_ataque);
-            d.sleep(tiempo_ataque);}
+        try{d.sleep(tiempo_ataque);}
         catch (Exception e){}
         int aleatorio= (int) (Math.random()*3);
-        if (aleatorio==0){
+        boolean capturado=(aleatorio==0);
+        if (capturado){
             n.setCapturado(true);
-
             moverDemogorgon(d, getListaUbicacionD(d.getUbicacion()), dem_Colmena);
             moverNiño(n, getListaUbicacionN(n.getUbicacion()), zonaColmena);
             long tiempo_depositar= (long) (Math.random()*500+500);
-            try{n.sleep(tiempo_depositar);
-                d.sleep(tiempo_depositar);}
+            try{d.sleep(tiempo_depositar);}
             catch (Exception e){}
             incrementar_contador_capturas();
             n.setEsta_atacado(false);
-            return true;
-
         }
         else{
-
             n.setCapturado(false);
             n.setEsta_atacado(false);
-            return false;
         }
+        n.liberarDeAtaque();
+        return capturado;
     }
+    public void crearDemogorgon(){
+        try {
+            semaforo_crearDemogorgon.acquire();
+            Demogorgon d = new Demogorgon(creador_Demogorgon, this, log, eventos);
+            creador_Demogorgon++;
+            semaforo_crearDemogorgon.release();
+            d.start();
+        }
+        catch (Exception e){}
+    }
+
 
 
 
@@ -316,6 +332,17 @@ public class Ciudad {
     }
     public void descanso(Niño n){
         moverNiño(n, zona_radio_wsqk, zona_calle_principal);
+
+    }
+
+    public int zona_niños(){
+        List<Niño> devolver = zonaBosque;
+        int zona=3;
+
+        if (zonaLaboratorio.size() > devolver.size()) devolver = zonaLaboratorio; zona=4;
+        if (zonaCentroComercial.size() > devolver.size()) devolver = zonaCentroComercial; zona=5;
+        if (zonaAlcantarillado.size() > devolver.size()) devolver = zonaAlcantarillado; zona=6;
+        return zona;
 
     }
 

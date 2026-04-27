@@ -6,6 +6,7 @@ public class Demogorgon extends Thread{
     private int capturas;
     private final Ciudad mapa;
     private final LogHawkins log;
+    private Eventos eventos;
 
     private final int bosque=3;
     private final int laboratorio=4;
@@ -13,10 +14,11 @@ public class Demogorgon extends Thread{
     private final int alcantarillado=6;
     private final int colmena=7;
 
-    public Demogorgon(String id, Ciudad mapa, LogHawkins log) {
-        this.id=id;
+    public Demogorgon(int n_Id, Ciudad mapa, LogHawkins log, Eventos eventos) {
+        this.id = String.format("D%04d", n_Id);
         this.mapa=mapa;
         this.log=log;
+        this.eventos=eventos;
         this.lleva_niño=false;
         this.ubicacion=7;
         this.capturas=0;
@@ -53,6 +55,9 @@ public class Demogorgon extends Thread{
     public void run(){
         while(true){
             int zona=elegirZona();
+            if (eventos.getEventoActual() == 4) {
+                zona= mapa.zona_niños();
+            }
             mapa.moverDemogorgon(this,mapa.getListaUbicacionD(getUbicacion()), mapa.getListaUbicacionD(zona));
             Niño victima=mapa.obtener_niño(ubicacion);
             if(victima!=null){
@@ -69,10 +74,16 @@ public class Demogorgon extends Thread{
             }
             else{
                 try{
-                    sleep((long) (Math.random() * 1000 + 4000));
+                    long espera=(long) (Math.random() * 1000 + 4000);
+                    if (eventos.getEventoActual() == 2) {
+                        espera = espera / 2;
+                    }
+                    sleep(espera);
                 }
                 catch(Exception e){}
             }
+
+
 
         }
     }
