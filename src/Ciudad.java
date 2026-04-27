@@ -27,10 +27,10 @@ public class Ciudad {
     private List<Niño> zonaColmena = Collections.synchronizedList(new ArrayList<>());
 //
     //creo que esto deberia ser private y hacer getters
-    public Portal portalBosque = new Portal(zona_sotano_byers,zonaBosque);
-    public Portal portaLaboratorio = new Portal(zona_sotano_byers,zonaLaboratorio);
-    public Portal portaCentroComercial = new Portal(zona_sotano_byers,zonaCentroComercial);
-    public Portal portaAlcantarillado = new Portal(zona_sotano_byers,zonaAlcantarillado);
+    public Portal portalBosque = new Portal(2, zona_sotano_byers,zonaBosque);
+    public Portal portaLaboratorio = new Portal(3, zona_sotano_byers,zonaLaboratorio);
+    public Portal portaCentroComercial = new Portal(4, zona_sotano_byers,zonaCentroComercial);
+    public Portal portaAlcantarillado = new Portal(2, zona_sotano_byers,zonaAlcantarillado);
 
     private List<Demogorgon> dem_Bosque=Collections.synchronizedList(new ArrayList<>());;
     private List<Demogorgon> dem_Laboratorio=Collections.synchronizedList(new ArrayList<>());;
@@ -42,6 +42,7 @@ public class Ciudad {
     private Semaphore semaforo_Contador= new Semaphore(1);
 
     public class Portal {
+        private int tGrupo;
         private List<Niño> origen;
         private List<Niño> destino;
 
@@ -56,9 +57,10 @@ public class Ciudad {
         private int restantesGrupo = 0;   // hilos del grupo que quedan por cruzar
         private boolean portalOcupado = false;
 
-        public Portal(List<Niño> origen,List<Niño> destino) { //no tengo claro como se manejan los lugares
+        public Portal(int tGrupo, List<Niño> origen,List<Niño> destino) { //no tengo claro como se manejan los lugares
             this.origen = origen;
             this.destino = destino;
+            this.tGrupo = tGrupo;
         }
         public void cruzarHabitual(Niño n) throws InterruptedException {
             lock.lock();
@@ -67,8 +69,8 @@ public class Ciudad {
 
 
                 while (restantesGrupo == 0) {  //lo comprueban los hilos que entran despues de que pase un grupo
-                    if (esperandoHawkins >= 3 && esperndoUpsideDown == 0) {  //forma grupo cuando toca
-                        restantesGrupo = 3;
+                    if (esperandoHawkins >= tGrupo && esperndoUpsideDown == 0) {  //forma grupo cuando toca
+                        restantesGrupo = tGrupo;
                         condHabitual.signalAll();
                     } else {
                         condHabitual.await();
