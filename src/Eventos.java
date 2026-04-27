@@ -7,7 +7,7 @@ public class Eventos extends Thread {
     private static final int tormenta=2;
     private static final int eleven=3;
     private static final int red=4;
-
+//hd
     public Eventos(Ciudad mapa){
         this.mapa=mapa;
         eventoactual=0;
