@@ -105,7 +105,9 @@ public class Niño extends Thread{
             }
 
             if (getCapturado()){
-                mapa.esperar_rescate(this);
+                mapa.esperar_rescate();
+                mapa.moverNiño(this, mapa.getZonaColmena(), mapa.getZonaCallePrincipal());
+                setCapturado(false);
             }
             else{
             setLleva_sangre(true);
@@ -114,7 +116,7 @@ public class Niño extends Thread{
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-            }
+
             mapa.entregar_sangre(this);
             try{
                 sleep((long)(Math.random() * 2000+2000));
@@ -124,7 +126,7 @@ public class Niño extends Thread{
             try{
                 sleep((long)(Math.random() * 2000+3000));
             }
-            catch(Exception e){}
+            catch(Exception e){}}
 
     }
 

@@ -54,11 +54,16 @@ public class Demogorgon extends Thread{
 
     public void run(){
         while(true){
-            int zona=elegirZona();
-            if (eventos.getEventoActual() == 4) {
-                zona= mapa.zona_niños();
+            mapa.esperarSiElevenEstaActiva();
+            if (eventos.getEventoActual() != 1) {
+                int zona=elegirZona();
+                if (eventos.getEventoActual() == 4) {
+                    zona= mapa.zona_niños();
+                }
+                mapa.moverDemogorgon(this,mapa.getListaUbicacionD(getUbicacion()), mapa.getListaUbicacionD(zona));
             }
-            mapa.moverDemogorgon(this,mapa.getListaUbicacionD(getUbicacion()), mapa.getListaUbicacionD(zona));
+
+            mapa.esperarSiElevenEstaActiva();
             Niño victima=mapa.obtener_niño(ubicacion);
             if(victima!=null){
                 try{

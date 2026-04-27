@@ -30,19 +30,33 @@ public class Eventos extends Thread {
                 }
                 else if (evento_elegido==1){
                     setEventoActual(apagon);
+                    long duracion= (long) (Math.random() * 5000+5000);
+                    sleep(duracion);
+                    setEventoActual(normalidad);
                 }
                 else if (evento_elegido==2){
                     setEventoActual(tormenta);
+                    long duracion= (long) (Math.random() * 5000+5000);
+                    sleep(duracion);
+                    setEventoActual(normalidad);
                 }
                 else if (evento_elegido==3){
                     setEventoActual(eleven);
+                    mapa.setElevenActiva(true);
+                    mapa.incrementar_contador_sangre();
+                    mapa.esperar_rescate();
+                    long duracion= (long) (Math.random() * 5000+5000);
+                    sleep(duracion);
+                    mapa.setElevenActiva(false);
+                    setEventoActual(normalidad);
                 }
                 else if (evento_elegido==4){
                     setEventoActual(red);
+                    long duracion= (long) (Math.random() * 5000+5000);
+                    sleep(duracion);
+                    setEventoActual(normalidad);
                 }
-                long duracion= (long) (Math.random() * 5000+5000);
-                sleep(duracion);
-                setEventoActual(normalidad);
+
             }
             catch(Exception e){}
         }

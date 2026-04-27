@@ -38,8 +38,19 @@ public class Ciudad {
     private List<Demogorgon> dem_Alcantarillado=Collections.synchronizedList(new ArrayList<>());;
     private List<Demogorgon> dem_Colmena=Collections.synchronizedList(new ArrayList<>());;
 
+    private boolean elevenActiva = false;
+    private final ReentrantLock lockEleven = new ReentrantLock();
+    private final Condition condElevenTermina = lockEleven.newCondition();
 
     private Semaphore semaforo_Contador= new Semaphore(1);
+
+    public synchronized void esperar_rescate() {
+        while (eventos.getEventoActual()!=3 || getContador_sangre()==0){
+            try{this.wait();}catch(InterruptedException e){}
+        }
+        decrementar_contador_sangre();
+        notifyAll();
+    }
 
     public class Portal {
         private int tGrupo;
@@ -53,6 +64,7 @@ public class Ciudad {
 
         private int esperandoHawkins = 0;
         private int esperndoUpsideDown = 0;
+        private boolean tormenta_activa;
 
         private int restantesGrupo = 0;   // hilos del grupo que quedan por cruzar
         private boolean portalOcupado = false;
@@ -61,6 +73,18 @@ public class Ciudad {
             this.tGrupo=tGrupo;
             this.origen = origen;
             this.destino = destino;
+        }
+        public void setTormenta_activa(boolean tormenta_activa) {
+            lock.lock();
+            try {
+                this.tormenta_activa = tormenta_activa;
+                if (!tormenta_activa) {
+                    condContrario.signalAll();
+                    condHabitual.signalAll();
+                }
+            }
+            catch (Exception e) {}
+            finally { lock.unlock(); }
         }
         public void cruzarHabitual(Niño n) throws InterruptedException {
             lock.lock();
@@ -86,7 +110,7 @@ public class Ciudad {
             // pasan de uno en uno
             lock.lock();
             try {
-                while (portalOcupado || esperndoUpsideDown > 0) {
+                while (portalOcupado || esperndoUpsideDown > 0 || !tormenta_activa) {
                     condHabitual.await();
                 }
                 portalOcupado = true;
@@ -117,7 +141,7 @@ public class Ciudad {
             try {
                 esperndoUpsideDown++;
 
-                while (portalOcupado) {
+                while (portalOcupado  || !tormenta_activa) {
                     condContrario.await();
                 }
 
@@ -346,6 +370,33 @@ public class Ciudad {
         if (zonaAlcantarillado.size() > devolver.size()) devolver = zonaAlcantarillado; zona=6;
         return zona;
 
+    }
+
+
+    public void setElevenActiva(boolean activa) {
+        lockEleven.lock();
+        try {
+            this.elevenActiva = activa;
+            if (!activa) {
+                condElevenTermina.signalAll();
+            }
+        } finally {
+            lockEleven.unlock();
+        }
+    }
+
+    public void esperarSiElevenEstaActiva()  {
+        lockEleven.lock();
+        try {
+            while (elevenActiva) {
+                condElevenTermina.await();
+            }
+
+        }
+        catch(Exception e) {}
+        finally {
+            lockEleven.unlock();
+        }
     }
 
 }
