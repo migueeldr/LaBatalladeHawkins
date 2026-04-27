@@ -1,3 +1,5 @@
+import java.util.concurrent.Semaphore;
+
 public class Niño extends Thread{
     private String id;
     private boolean lleva_sangre;
@@ -6,6 +8,9 @@ public class Niño extends Thread{
     private boolean capturado;
     private final Ciudad mapa;
     private final LogHawkins log;
+    private Eventos eventos;
+
+    private final Semaphore semaforo_ataque=new Semaphore(0);
 
     //zonas seguras
     private final int calle_principal=0;
@@ -21,10 +26,11 @@ public class Niño extends Thread{
 
 
 
-    public Niño(String id, Ciudad mapa, LogHawkins log) {
-        this.id = id;
+    public Niño(int n_id, Ciudad mapa, LogHawkins log, Eventos eventos) {
+        this.id = String.format("N%04d", n_id);
         this.mapa = mapa;
         this.log = log;
+        this.eventos=eventos;
         this.lleva_sangre = false;
         this.ubicacion = 0;
         mapa.addNiñoCallePrincipal(this);
@@ -66,6 +72,9 @@ public class Niño extends Thread{
         if(portal_elegido==5){return mapa.portaCentroComercial;}
         else {return mapa.portaAlcantarillado;}
     }
+    public void liberarDeAtaque(){
+        semaforo_ataque.release();
+    }
 
     public void run(){
 
@@ -85,9 +94,14 @@ public class Niño extends Thread{
             }
             try{
                 long aleatorio= (long) (Math.random() * 2000+3000);
+                if (eventos.getEventoActual() == 2) {
+                    aleatorio= aleatorio * 2;
+                }
                 sleep(aleatorio);
             }
             catch(Exception e){
+                try{semaforo_ataque.acquire();}
+                catch(Exception e2){}
             }
 
             if (getCapturado()){
