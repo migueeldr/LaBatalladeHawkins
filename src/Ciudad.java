@@ -96,8 +96,10 @@ public class Ciudad {
                     if (esperandoHawkins >= tGrupo && esperndoUpsideDown == 0) {  //forma grupo cuando toca
                         restantesGrupo = tGrupo;
                         condHabitual.signalAll();
+                        log.escribirEvento("El niño " +n + "ha intentado formar grupo");
                     } else {
                         condHabitual.await();
+                        log.escribirEvento("El niño " +n + "no ha podido formar grupo");
                     }
                 }
 
@@ -110,14 +112,16 @@ public class Ciudad {
             // pasan de uno en uno
             lock.lock();
             try {
-                while (portalOcupado || esperndoUpsideDown > 0 || !tormenta_activa) {
+                while (portalOcupado || esperndoUpsideDown > 0 || tormenta_activa) {
+                    log.escribirEvento("El niño " +n + "esta esperando a cruzar habitual");
                     condHabitual.await();
                 }
                 portalOcupado = true;
+                log.escribirEvento("El niño " +n + "SE DISPONE A CRUZAR HABITUAL");
             } finally {
                 lock.unlock();
             }
-
+            log.escribirEvento("El niño " +n + "HA CRUZADO EN SENTIDO HABITUAL HACIA" + destino);
             moverNiño(n, origen, destino);
             cruzar(n);
 
