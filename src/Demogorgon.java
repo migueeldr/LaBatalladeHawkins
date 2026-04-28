@@ -1,3 +1,5 @@
+import java.util.concurrent.Semaphore;
+
 public class Demogorgon extends Thread{
     private Niño niño;
     private String id;
@@ -7,7 +9,8 @@ public class Demogorgon extends Thread{
     private final Ciudad mapa;
     private final LogHawkins log;
     private Eventos eventos;
-
+    private int creador_Demogorgon=1;
+    private Semaphore semaforo_crearDemogorgon=new Semaphore(1);
     private final int bosque=3;
     private final int laboratorio=4;
     private final int centro_comercial=5;
@@ -23,7 +26,16 @@ public class Demogorgon extends Thread{
         this.ubicacion=7;
         this.capturas=0;
     }
-
+    public void crearDemogorgon(){
+        try {
+            semaforo_crearDemogorgon.acquire();
+            Demogorgon d = new Demogorgon(creador_Demogorgon, mapa, log, eventos);
+            creador_Demogorgon++;
+            semaforo_crearDemogorgon.release();
+            d.start();
+        }
+        catch (Exception e){}
+    }
     public String getIdDemogorgon(){
         return id;
     }

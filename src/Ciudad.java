@@ -8,8 +8,6 @@ import java.util.concurrent.locks.*;
 import static java.lang.Thread.sleep;
 
 public class Ciudad {
-    private int creador_Demogorgon=1;
-    private Semaphore semaforo_crearDemogorgon=new Semaphore(1);
     private Niño niño;
     private Demogorgon demogorgon;
     private int contador_sangre;
@@ -50,6 +48,10 @@ public class Ciudad {
         }
         decrementar_contador_sangre();
         notifyAll();
+    }
+    public Ciudad(LogHawkins log, Eventos eventos) {
+        this.log = log;
+        this.eventos = eventos;
     }
 
     public class Portal {
@@ -199,10 +201,10 @@ public class Ciudad {
     public synchronized void decrementar_contador_sangre(){
         contador_sangre--;
     }
-    public void incrementar_contador_capturas(){
+    public void incrementar_contador_capturas(Demogorgon d){
         contador_capturas.incrementAndGet();
             if (getContador_capturas()%8==0){
-                crearDemogorgon();
+                d.crearDemogorgon();
             }
     }
     public void decrementar_contador_capturas(){
@@ -329,7 +331,7 @@ public class Ciudad {
             long tiempo_depositar= (long) (Math.random()*500+500);
             try{d.sleep(tiempo_depositar);}
             catch (Exception e){}
-            incrementar_contador_capturas();
+            incrementar_contador_capturas(d);
             n.setEsta_atacado(false);
         }
         else{
@@ -339,16 +341,7 @@ public class Ciudad {
         n.liberarDeAtaque();
         return capturado;
     }
-    public void crearDemogorgon(){
-        try {
-            semaforo_crearDemogorgon.acquire();
-            Demogorgon d = new Demogorgon(creador_Demogorgon, this, log, eventos);
-            creador_Demogorgon++;
-            semaforo_crearDemogorgon.release();
-            d.start();
-        }
-        catch (Exception e){}
-    }
+
 
 
 
