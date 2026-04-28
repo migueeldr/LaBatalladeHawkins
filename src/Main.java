@@ -1,15 +1,21 @@
+import static java.lang.Thread.sleep;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
-
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+        Ciudad mapaHawkins = new Ciudad();
+        LogHawkins logHawkins = new LogHawkins();
+        Eventos eventosHawkins = new Eventos(mapaHawkins, logHawkins);
+        Demogorgon demogorgonAlfa = new Demogorgon( 0, mapaHawkins, logHawkins, eventosHawkins);
+        demogorgonAlfa.start();
+        for (int i=0; i<1500; i++){
+            try {
+                sleep((long) (Math.random()*1500 +500));
+                Niño n = new Niño(i,mapaHawkins, logHawkins, eventosHawkins);
+                n.start();
+            }
+            catch (Exception e){}
+        }
         }
     }
-}
