@@ -22,13 +22,16 @@ public class Eventos extends Thread {
     public void run(){
         while(true){
             try{
-                log.escribirEvento("El evento ha finalizado.");
                 long pausa = 30000 + (long)(Math.random() * 30000);
                 sleep(pausa);
                 int evento_elegido= (int) (Math.random() * 5);
                 if (evento_elegido==0){
                     setEventoActual(normalidad);
                     log.escribirEvento("El evento de normalidad ha comenzado.");
+                    long duracion= (long) (Math.random() * 5000+5000);
+                    sleep(duracion);
+                    setEventoActual(normalidad);
+                    log.escribirEvento("El evento de normalidad ha terminado.");
                 }
                 else if (evento_elegido==1){
                     setEventoActual(apagon);
@@ -36,6 +39,7 @@ public class Eventos extends Thread {
                     long duracion= (long) (Math.random() * 5000+5000);
                     sleep(duracion);
                     setEventoActual(normalidad);
+                    log.escribirEvento("El evento de APAGÓN DEL LABORATORIO ha terminado.");
                 }
                 else if (evento_elegido==2){
                     setEventoActual(tormenta);
@@ -43,6 +47,7 @@ public class Eventos extends Thread {
                     long duracion= (long) (Math.random() * 5000+5000);
                     sleep(duracion);
                     setEventoActual(normalidad);
+                    log.escribirEvento("El evento de TORMENTA DEL UPSIDE DOWN ha terminado.");
                 }
                 else if (evento_elegido==3){
                     setEventoActual(eleven);
@@ -54,6 +59,7 @@ public class Eventos extends Thread {
                     sleep(duracion);
                     mapa.setElevenActiva(false);
                     setEventoActual(normalidad);
+                    log.escribirEvento("El evento de INTERVENCION DE ELEVEN ha terminado.");
                 }
                 else if (evento_elegido==4){
                     setEventoActual(red);
@@ -61,6 +67,7 @@ public class Eventos extends Thread {
                     long duracion= (long) (Math.random() * 5000+5000);
                     sleep(duracion);
                     setEventoActual(normalidad);
+                    log.escribirEvento("El evento de LA RED MENTAL ha terminado.");
                 }
 
             }

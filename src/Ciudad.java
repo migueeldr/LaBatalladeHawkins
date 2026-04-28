@@ -298,6 +298,9 @@ public class Ciudad {
     public synchronized Niño obtener_niño(int ubicacion){
         int longitud= (getListaUbicacionN(ubicacion)).size();
         int aleatorio= (int) (Math.random()*longitud);
+        if (longitud==0){
+            return null;
+        }
         if(getListaUbicacionN(ubicacion).get(aleatorio).getEsta_atacado()){
             return null;
         }
