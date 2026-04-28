@@ -75,6 +75,9 @@ public class Niño extends Thread{
     public void liberarDeAtaque(){
         semaforo_ataque.release();
     }
+    public Semaphore getSemaphore_ataque(){
+        return semaforo_ataque;
+    }
 
     public void run(){
         log.escribirEvento("El niño " + id + " ha nacido.");
@@ -114,10 +117,9 @@ public class Niño extends Thread{
             }
             else{
             setLleva_sangre(true);
-                try {
+
                     portal_elegido.cruzarContrario(this);
                     log.escribirEvento("El niño " + id + " ha cruzado el portal contrario hacia " + this.getUbicacion());
-                } catch (InterruptedException e) {}
 
             mapa.entregar_sangre(this);
             log.escribirEvento("El niño " + id + " ha entregado sangre.");

@@ -1,4 +1,5 @@
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Demogorgon extends Thread{
     private Niño niño;
@@ -9,7 +10,7 @@ public class Demogorgon extends Thread{
     private final Ciudad mapa;
     private final LogHawkins log;
     private Eventos eventos;
-    private int creador_Demogorgon=1;
+    private static  int creador_Demogorgon = 1;
     private Semaphore semaforo_crearDemogorgon=new Semaphore(1);
     private final int bosque=3;
     private final int laboratorio=4;

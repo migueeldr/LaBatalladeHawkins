@@ -24,16 +24,8 @@ public class Eventos extends Thread {
             try{
                 long pausa = 30000 + (long)(Math.random() * 30000);
                 sleep(pausa);
-                int evento_elegido= (int) (Math.random() * 5);
-                if (evento_elegido==0){
-                    setEventoActual(normalidad);
-                    log.escribirEvento("El evento de normalidad ha comenzado.");
-                    long duracion= (long) (Math.random() * 5000+5000);
-                    sleep(duracion);
-                    setEventoActual(normalidad);
-                    log.escribirEvento("El evento de normalidad ha terminado.");
-                }
-                else if (evento_elegido==1){
+                int evento_elegido= (int) (Math.random() * 4 +1);
+                if (evento_elegido==1){
                     setEventoActual(apagon);
                     log.escribirEvento("El evento de APAGÓN DEL LABORATORIO ha comenzado.");
                     long duracion= (long) (Math.random() * 5000+5000);
@@ -43,6 +35,7 @@ public class Eventos extends Thread {
                 }
                 else if (evento_elegido==2){
                     setEventoActual(tormenta);
+
                     log.escribirEvento("El evento de TORMENTA DEL UPSIDE DOWN ha comenzado.");
                     long duracion= (long) (Math.random() * 5000+5000);
                     sleep(duracion);

@@ -43,7 +43,7 @@ public class Ciudad {
     private Semaphore semaforo_Contador= new Semaphore(1);
 
     public synchronized void esperar_rescate() {
-        while (eventos.getEventoActual()!=3 || getContador_sangre()==0){
+        while (!isElevenActiva() || getContador_sangre()==0){
             try{this.wait();}catch(InterruptedException e){}
         }
         decrementar_contador_sangre();
@@ -76,7 +76,7 @@ public class Ciudad {
             this.origen = origen;
             this.destino = destino;
         }
-        public void setTormenta_activa(boolean tormenta_activa) {
+        public  void setTormenta_activa(boolean tormenta_activa) {
             lock.lock();
             try {
                 this.tormenta_activa = tormenta_activa;
@@ -142,7 +142,7 @@ public class Ciudad {
 
 
 
-        public void cruzarContrario(Niño n) throws InterruptedException {
+        public void cruzarContrario(Niño n)  {
             lock.lock();
             try {
                 esperndoUpsideDown++;
@@ -154,7 +154,16 @@ public class Ciudad {
                 esperndoUpsideDown--;
                 portalOcupado = true;
 
-            } finally {
+
+
+            }
+            catch(Exception e){
+                esperndoUpsideDown--;
+
+                try{n.getSemaphore_ataque().acquire();}
+                catch(Exception e2){}}
+
+            finally {
                 lock.unlock();
             }
             log.escribirEvento("El niño " +n + "HA CRUZADO EN SENTIDO CONTRARIO HACIA" + destino);
@@ -175,9 +184,13 @@ public class Ciudad {
         }
 
         //quitar print antes de entregar
-        private void cruzar(Niño  n) throws InterruptedException {
+        private void cruzar(Niño  n) {
+
             System.out.println("Hilo " + n.getIdNiño() + " cruzando...");
-            Thread.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
             System.out.println("Hilo " + n.getIdNiño() + " ha cruzado");
         }
     }
@@ -384,6 +397,9 @@ public class Ciudad {
         } finally {
             lockEleven.unlock();
         }
+    }
+    public boolean isElevenActiva() {
+        return elevenActiva;
     }
 
     public void esperarSiElevenEstaActiva()  {
