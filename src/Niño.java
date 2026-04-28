@@ -117,9 +117,7 @@ public class Niño extends Thread{
                 try {
                     portal_elegido.cruzarContrario(this);
                     log.escribirEvento("El niño " + id + " ha cruzado el portal contrario hacia " + this.getUbicacion());
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                } catch (InterruptedException e) {}
 
             mapa.entregar_sangre(this);
             log.escribirEvento("El niño " + id + " ha entregado sangre.");
