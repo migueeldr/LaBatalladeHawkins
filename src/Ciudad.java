@@ -117,11 +117,11 @@ public class Ciudad {
                     condHabitual.await();
                 }
                 portalOcupado = true;
-                log.escribirEvento("El niño " +n + "SE DISPONE A CRUZAR HABITUAL");
+                ;
             } finally {
                 lock.unlock();
             }
-            log.escribirEvento("El niño " +n + "HA CRUZADO EN SENTIDO HABITUAL HACIA" + destino);
+            log.escribirEvento("El niño " +n + "ha cruzado hacia" + destino);
             moverNiño(n, origen, destino);
             cruzar(n);
 
@@ -145,7 +145,7 @@ public class Ciudad {
             try {
                 esperndoUpsideDown++;
 
-                while (portalOcupado  || !tormenta_activa) {
+                while (portalOcupado  || tormenta_activa) {
                     condContrario.await();
                 }
 
@@ -155,6 +155,7 @@ public class Ciudad {
             } finally {
                 lock.unlock();
             }
+            log.escribirEvento("El niño " +n + "HA CRUZADO EN SENTIDO CONTRARIO HACIA" + destino);
             moverNiño(n, destino, origen);
             cruzar(n);
 
