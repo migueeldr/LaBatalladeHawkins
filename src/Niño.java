@@ -77,7 +77,7 @@ public class Niño extends Thread{
     }
 
     public void run(){
-
+        log.escribirEvento("El niño " + id + " ha nacido.");
         while(true){
             mapa.moverNiño(this, mapa.getZonaCallePrincipal(), mapa.getZonaSotanoByers());
 
@@ -89,6 +89,7 @@ public class Niño extends Thread{
             Ciudad.Portal portal_elegido=elegirPortal();
             try {
                 portal_elegido.cruzarHabitual(this);
+                log.escribirEvento("El niño " + id + " ha cruzado el portal hacia " + this.getUbicacion());
             } catch (InterruptedException e) {
 
             }
@@ -105,24 +106,29 @@ public class Niño extends Thread{
             }
 
             if (getCapturado()){
+                log.escribirEvento("El niño " + id + " ha sido capturado.");
                 mapa.esperar_rescate();
                 mapa.moverNiño(this, mapa.getZonaColmena(), mapa.getZonaCallePrincipal());
                 setCapturado(false);
+                log.escribirEvento("El niño " + id + " ha sido rescatado.");
             }
             else{
             setLleva_sangre(true);
                 try {
                     portal_elegido.cruzarContrario(this);
+                    log.escribirEvento("El niño " + id + " ha cruzado el portal contrario hacia " + this.getUbicacion());
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
 
             mapa.entregar_sangre(this);
+            log.escribirEvento("El niño " + id + " ha entregado sangre.");
             try{
                 sleep((long)(Math.random() * 2000+2000));
             }
             catch(Exception e){}
             mapa.descanso(this);
+            log.escribirEvento("El niño " + id + " esta descansando.");
             try{
                 sleep((long)(Math.random() * 2000+3000));
             }

@@ -53,6 +53,7 @@ public class Demogorgon extends Thread{
 
 
     public void run(){
+        log.escribirEvento("El demosgorgon " + id + " ha nacido.");
         while(true){
             mapa.esperarSiElevenEstaActiva();
             if (eventos.getEventoActual() != 1) {
@@ -70,6 +71,7 @@ public class Demogorgon extends Thread{
                     long tiempo_ataque= (long) (Math.random() * 1000+500);
                     sleep(tiempo_ataque);
                     if (mapa.ataque_niño(this, victima)){
+                        log.escribirEvento("El demosgorgon " + id + " ha capturado a " + victima.getIdNiño());
                         incrementarCapturas();
                     }
 
