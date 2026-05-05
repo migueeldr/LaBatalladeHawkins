@@ -59,6 +59,7 @@ public class Ciudad {
         private List<Niño> origen;
         private List<Niño> destino;
 
+
         private final ReentrantLock lock = new ReentrantLock(true);
 
         private final Condition condHabitual = lock.newCondition();
@@ -70,6 +71,10 @@ public class Ciudad {
 
         private int restantesGrupo = 0;   // hilos del grupo que quedan por cruzar
         private boolean portalOcupado = false;
+
+        public int getNiños_Portal() {
+           return  lock.getQueueLength();
+        }
 
         public Portal(int tGrupo , List<Niño> origen,List<Niño> destino) {//no tengo claro como se manejan los lugares
             this.tGrupo=tGrupo;
