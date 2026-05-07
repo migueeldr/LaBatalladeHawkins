@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -44,6 +45,53 @@ public class Ciudad {
     private final Condition condElevenTermina = lockEleven.newCondition();
 
     private Semaphore semaforo_Contador= new Semaphore(1);
+
+    // En Ciudad.java
+    private AtomicBoolean pausado= new AtomicBoolean(false);
+    private final ReentrantLock lockPausa = new ReentrantLock();
+    private final Condition condReanudar = lockPausa.newCondition();
+    private List<Thread> todosLosHilos = Collections.synchronizedList(new ArrayList<>());
+
+    public boolean getPausado() {
+        return pausado.get();
+    }
+
+    public void registrarHilo(Thread t) {
+        todosLosHilos.add(t);
+    }
+
+    public void alternarPausa() {
+        lockPausa.lock();
+        try {
+            pausado.set(!(pausado.get()));
+            if (pausado.get()) {
+
+                synchronized (todosLosHilos) {
+                    for (Thread t : todosLosHilos) {
+                        t.interrupt();
+                    }
+                }
+            } else {
+                condReanudar.signalAll(); // Despertar a todos al reanudar
+            }
+        } finally {
+            lockPausa.unlock();
+        }
+    }
+
+    public void comprobarPausa() {
+        lockPausa.lock();
+        try {
+            while (pausado.get()) {
+                condReanudar.await(); // El hilo se queda aquí hasta que se pulse reanudar
+            }
+        } catch (InterruptedException e) {
+            // Si es interrumpido mientras espera, vuelve a comprobar si sigue pausado
+            if (pausado.get()) comprobarPausa();
+        } finally {
+            lockPausa.unlock();
+        }
+    }
 
     public synchronized void esperar_rescate() {
         while (!isElevenActiva() || getContador_sangre()==0){

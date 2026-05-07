@@ -82,6 +82,7 @@ public class Niño extends Thread{
     }
 
     public void run(){
+        mapa.comprobarPausa();
         log.escribirEvento("El niño " + id + " ha nacido.");
         while(true){
             mapa.moverNiño(this, mapa.getZonaCallePrincipal(), mapa.getZonaSotanoByers());
@@ -90,13 +91,15 @@ public class Niño extends Thread{
                 long aleatorio= (long) (Math.random() * 1000+1000);
                 sleep(aleatorio);
             }
-            catch(Exception e){}
+            catch(Exception e){
+                mapa.comprobarPausa();
+            }
             Ciudad.Portal portal_elegido=elegirPortal();
             try {
                 portal_elegido.cruzarHabitual(this);
                 log.escribirEvento("El niño " + id + " ha cruzado el portal hacia " + this.getUbicacion());
             } catch (InterruptedException e) {
-
+                mapa.comprobarPausa();
             }
             try{
                 long aleatorio= (long) (Math.random() * 2000+3000);
@@ -106,8 +109,15 @@ public class Niño extends Thread{
                 sleep(aleatorio);
             }
             catch(Exception e){
-                try{semaforo_ataque.acquire();}
-                catch(Exception e2){}
+                if (mapa.getPausado()) {
+                    mapa.comprobarPausa();
+
+                }
+                else {try{semaforo_ataque.acquire();}
+                catch(Exception e2){
+                    mapa.comprobarPausa();
+                }}
+
             }
 
             if (getCapturado()){
@@ -128,13 +138,17 @@ public class Niño extends Thread{
             try{
                 sleep((long)(Math.random() * 2000+2000));
             }
-            catch(Exception e){}
+            catch(Exception e){
+                mapa.comprobarPausa();
+            }
             mapa.descanso(this);
             log.escribirEvento("El niño " + id + " esta descansando.");
             try{
                 sleep((long)(Math.random() * 2000+3000));
             }
-            catch(Exception e){}}
+            catch(Exception e){
+                mapa.comprobarPausa();
+            }}
 
     }
 

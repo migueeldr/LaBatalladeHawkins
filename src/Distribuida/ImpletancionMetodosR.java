@@ -88,6 +88,7 @@ public class ImpletancionMetodosR extends UnicastRemoteObject implements Interfa
     }
 
     public void start_stop() throws RemoteException{
+        mapa.alternarPausa();
 
     }
 

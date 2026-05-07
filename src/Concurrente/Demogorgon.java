@@ -67,24 +67,29 @@ public class Demogorgon extends Thread{
 
 
     public void run(){
+        mapa.comprobarPausa();
         log.escribirEvento("El demogorgon " + id + " ha nacido.");
         mapa.getDem_Todos().add(this);
         while(true){
             mapa.esperarSiElevenEstaActiva();
+            mapa.comprobarPausa();
             if (eventos.getEventoActual() != 1) {
                 int zona=elegirZona();
                 if (eventos.getEventoActual() == 4) {
                     zona= mapa.zona_niños();
                 }
+                mapa.comprobarPausa();
                 mapa.moverDemogorgon(this,mapa.getListaUbicacionD(getUbicacion()), mapa.getListaUbicacionD(zona));
             }
 
             mapa.esperarSiElevenEstaActiva();
+            mapa.comprobarPausa();
             Niño victima=mapa.obtener_niño(ubicacion);
             if(victima!=null){
                 try{
                     long tiempo_ataque= (long) (Math.random() * 1000+500);
                     sleep(tiempo_ataque);
+                    mapa.comprobarPausa();
                     if (mapa.ataque_niño(this, victima)){
                         log.escribirEvento("El demogorgon " + id + " ha capturado a " + victima.getIdNiño());
                         incrementarCapturas();
@@ -92,7 +97,7 @@ public class Demogorgon extends Thread{
 
 
                 }
-                catch(Exception e){}
+                catch(Exception e){mapa.comprobarPausa();}
             }
             else{
                 try{
@@ -102,7 +107,7 @@ public class Demogorgon extends Thread{
                     }
                     sleep(espera);
                 }
-                catch(Exception e){}
+                catch(Exception e){mapa.comprobarPausa();}
             }
 
 

@@ -22,6 +22,7 @@ public class Eventos extends Thread {
     }
 
     public void run(){
+        mapa.comprobarPausa();
         while(true){
             try{
                 long pausa = 30000 + (long)(Math.random() * 30000);
@@ -66,7 +67,7 @@ public class Eventos extends Thread {
                 }
 
             }
-            catch(Exception e){}
+            catch(Exception e){mapa.comprobarPausa();}
         }
     }
 }
