@@ -1,35 +1,26 @@
 package Distribuida.Interfaz;
-import Concurrente.Ciudad;
-import Concurrente.Eventos;
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
-public interface  InterfazCS extends Remote {
-//mapa de parametro de entrada?
-    public int niños_hawkins(Ciudad mapa) throws RemoteException;
-
-    public int niños_portalesBosque(Ciudad mapa) throws RemoteException;
-    public int niños_portalesAlcantarillado(Ciudad mapa) throws RemoteException;
-    public int niños_portalesCentroComercial(Ciudad mapa) throws RemoteException;
-    public int niños_portalesLaboratorio(Ciudad mapa) throws RemoteException;
-
-    public int niños_Bosque(Ciudad mapa) throws RemoteException;
-    public int niños_Alcantarillado(Ciudad mapa) throws RemoteException;
-    public int niños_CentroComercial(Ciudad mapa) throws RemoteException;
-    public int niños_Laboratorio(Ciudad mapa) throws RemoteException;
-    public int niños_Colmena(Ciudad mapa) throws RemoteException;
-
-    public int demogorgons_Bosque(Ciudad mapa) throws RemoteException;
-    public int demogorgons_Alcantarillado(Ciudad mapa) throws RemoteException;
-    public int demogorgons_CentroComercial(Ciudad mapa) throws RemoteException;
-    public int demogorgons_Laboratorio(Ciudad mapa) throws RemoteException;
-    public int demogorgons_Colmena(Ciudad mapa) throws RemoteException;
-
-    public ArrayList<String> top3_Demogorgons() throws RemoteException;
-
-    public String devolver_evento(Eventos evento) throws RemoteException;
-
-    public void start_stop() throws RemoteException;
+public interface InterfazCS extends Remote {
+    // El cliente solo pide el número, no envía el mapa
+    int niños_hawkins() throws RemoteException;
+    int niños_portalesBosque() throws RemoteException;
+    int niños_portalesAlcantarillado() throws RemoteException;
+    int niños_portalesCentroComercial() throws RemoteException;
+    int niños_portalesLaboratorio() throws RemoteException;
+    int niños_Bosque() throws RemoteException;
+    int niños_Alcantarillado() throws RemoteException;
+    int niños_CentroComercial() throws RemoteException;
+    int niños_Laboratorio() throws RemoteException;
+    int niños_Colmena() throws RemoteException;
+    int demogorgons_Bosque() throws RemoteException;
+    int demogorgons_Alcantarillado() throws RemoteException;
+    int demogorgons_CentroComercial() throws RemoteException;
+    int demogorgons_Laboratorio() throws RemoteException;
+    int demogorgons_Colmena() throws RemoteException;
+    ArrayList<String> top3_Demogorgons() throws RemoteException;
+    String devolver_evento() throws RemoteException;
+    void start_stop() throws RemoteException;
 }

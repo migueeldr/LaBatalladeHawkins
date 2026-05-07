@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Concurrente/Concurrente.iml" filepath="$PROJECT_DIR$/Concurrente/Concurrente.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Distribuida/Distribuida.iml" filepath="$PROJECT_DIR$/Distribuida/Distribuida.iml" />
       <module fileurl="file://$PROJECT_DIR$/La Batalla de Hawkins.iml" filepath="$PROJECT_DIR$/La Batalla de Hawkins.iml" />
     </modules>
   </component>

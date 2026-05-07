@@ -27,6 +27,8 @@ public class Demogorgon extends Thread{
         this.lleva_niño=false;
         this.ubicacion=7;
         this.capturas=0;
+
+        mapa.registrarHilo(this);
     }
     public void crearDemogorgon(){
         try {

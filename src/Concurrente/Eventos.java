@@ -13,6 +13,9 @@ public class Eventos extends Thread {
         this.mapa=mapa;
         eventoactual=0;
         this.log=log;
+
+        mapa.registrarHilo(this);
+
     }
     public int getEventoActual(){
         return eventoactual;

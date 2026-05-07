@@ -38,6 +38,9 @@ public class Niño extends Thread{
         mapa.addNiñoCallePrincipal(this);
         esta_atacado=false;
         capturado=false;
+
+        mapa.registrarHilo(this);
+
     }
     public String getIdNiño(){
         return id;
@@ -119,18 +122,24 @@ public class Niño extends Thread{
                 }}
 
             }
-
+            mapa.comprobarPausa();
             if (getCapturado()){
+                mapa.comprobarPausa();
                 log.escribirEvento("El niño " + id + " ha sido capturado.");
+                mapa.comprobarPausa();
                 mapa.esperar_rescate();
+                mapa.comprobarPausa();
                 mapa.moverNiño(this, mapa.getZonaColmena(), mapa.getZonaCallePrincipal());
+                mapa.comprobarPausa();
                 setCapturado(false);
                 log.escribirEvento("El niño " + id + " ha sido rescatado.");
             }
             else{
+                mapa.comprobarPausa();
             setLleva_sangre(true);
-
+                    mapa.comprobarPausa();
                     portal_elegido.cruzarContrario(this);
+                    mapa.comprobarPausa();
                     log.escribirEvento("El niño " + id + " ha cruzado el portal contrario hacia " + this.getUbicacion());
 
             mapa.entregar_sangre(this);
