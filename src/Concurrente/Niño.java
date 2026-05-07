@@ -1,3 +1,5 @@
+package Concurrente;
+
 import java.util.concurrent.Semaphore;
 
 public class Niño extends Thread{

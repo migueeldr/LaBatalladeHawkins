@@ -1,4 +1,4 @@
-import static java.lang.Thread.sleep;
+package Concurrente;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,6 +15,7 @@ public class Main {
         eventosHawkins.start();
 
         Demogorgon demogorgonAlfa = new Demogorgon(0, mapaHawkins, logHawkins, eventosHawkins);
+
         demogorgonAlfa.start();
 
         // Reducimos el número de niños para no saturar la UI al inicio,

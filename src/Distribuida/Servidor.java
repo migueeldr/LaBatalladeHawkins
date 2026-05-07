@@ -1,4 +1,4 @@
-package Servidor;
+package Distribuida;
 
 import java.rmi.*;
 

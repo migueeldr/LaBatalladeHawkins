@@ -1,6 +1,6 @@
-package Cliente;
+package Distribuida;
 
-import Interfaz.InterfazCS;
+import Distribuida.Interfaz.InterfazCS;
 
 import java.rmi.*;
 

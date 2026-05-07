@@ -1,3 +1,5 @@
+package Concurrente;
+
 public class Eventos extends Thread {
     private Ciudad mapa;
     private int eventoactual;

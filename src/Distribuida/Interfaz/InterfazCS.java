@@ -1,7 +1,10 @@
-package Interfaz;
+package Distribuida.Interfaz;
+import Concurrente.Ciudad;
+import Concurrente.Eventos;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 public interface  InterfazCS extends Remote {
 //mapa de parametro de entrada?
@@ -24,7 +27,7 @@ public interface  InterfazCS extends Remote {
     public int demogorgons_Laboratorio(Ciudad mapa) throws RemoteException;
     public int demogorgons_Colmena(Ciudad mapa) throws RemoteException;
 
-    public String[] top3_Demogorgons() throws RemoteException;
+    public ArrayList<String> top3_Demogorgons() throws RemoteException;
 
     public String devolver_evento(Eventos evento) throws RemoteException;
 

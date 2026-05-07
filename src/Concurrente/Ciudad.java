@@ -1,11 +1,12 @@
+package Concurrente;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.*;
-
-import static java.lang.Thread.sleep;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Ciudad {
     private Niño niño;
@@ -30,11 +31,13 @@ public class Ciudad {
     public Portal portaCentroComercial = new Portal(4,zona_sotano_byers,zonaCentroComercial);
     public Portal portaAlcantarillado = new Portal(2, zona_sotano_byers,zonaAlcantarillado);
 
-    private List<Demogorgon> dem_Bosque=Collections.synchronizedList(new ArrayList<>());;
-    private List<Demogorgon> dem_Laboratorio=Collections.synchronizedList(new ArrayList<>());;
-    private List<Demogorgon> dem_CentroComercial=Collections.synchronizedList(new ArrayList<>());;
-    private List<Demogorgon> dem_Alcantarillado=Collections.synchronizedList(new ArrayList<>());;
-    private List<Demogorgon> dem_Colmena=Collections.synchronizedList(new ArrayList<>());;
+    private List<Demogorgon> dem_Bosque=Collections.synchronizedList(new ArrayList<>());
+    private List<Demogorgon> dem_Laboratorio=Collections.synchronizedList(new ArrayList<>());
+    private List<Demogorgon> dem_CentroComercial=Collections.synchronizedList(new ArrayList<>());
+    private List<Demogorgon> dem_Alcantarillado=Collections.synchronizedList(new ArrayList<>());
+    private List<Demogorgon> dem_Colmena=Collections.synchronizedList(new ArrayList<>());
+
+    private List<Demogorgon> dem_Todos=Collections.synchronizedList(new ArrayList<>());
 
     private boolean elevenActiva = false;
     private final ReentrantLock lockEleven = new ReentrantLock();
@@ -52,6 +55,14 @@ public class Ciudad {
     public Ciudad(LogHawkins log, Eventos eventos) {
         this.log = log;
         this.eventos = eventos;
+    }
+
+    public List<Demogorgon> getDem_Todos() {
+        return dem_Todos;
+    }
+
+    public void setDem_Todos(List<Demogorgon> dem_Todos) {
+        this.dem_Todos = dem_Todos;
     }
 
     public class Portal {

@@ -1,5 +1,6 @@
+package Concurrente;
+
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Demogorgon extends Thread{
     private Niño niño;
@@ -67,6 +68,7 @@ public class Demogorgon extends Thread{
 
     public void run(){
         log.escribirEvento("El demogorgon " + id + " ha nacido.");
+        mapa.getDem_Todos().add(this);
         while(true){
             mapa.esperarSiElevenEstaActiva();
             if (eventos.getEventoActual() != 1) {

@@ -1,9 +1,17 @@
-package Servidor;
+package Distribuida;
 
-import Interfaz.InterfazCS;
+import Concurrente.Ciudad;
+import Concurrente.Demogorgon;
+import Concurrente.Eventos;
 
+import Distribuida.Interfaz.InterfazCS;
+
+import java.awt.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class ImpletancionMetodosR extends UnicastRemoteObject implements InterfazCS {
      private Ciudad mapa;
@@ -60,8 +68,18 @@ public class ImpletancionMetodosR extends UnicastRemoteObject implements Interfa
         return mapa.getDemColmena().size();
     }
 
-    public String[] top3_Demogorgons() throws RemoteException{
-        return  null;
+    //seria mejor ordenar la lista sync demTodos??
+    public ArrayList<String> top3_Demogorgons() throws RemoteException{
+        ArrayList <Demogorgon> dem;
+        dem = (ArrayList<Demogorgon>) mapa.getDem_Todos();
+        dem.sort(Comparator.comparing(Demogorgon::getCapturas).reversed());
+
+        ArrayList <String> demT3 = new ArrayList<>();
+        demT3.add(dem.get(0).getIdDemogorgon());
+        demT3.add(dem.get(1).getIdDemogorgon());
+        demT3.add(dem.get(2).getIdDemogorgon());
+
+        return demT3;
     }
 
     public String devolver_evento(Eventos evento) throws RemoteException{
