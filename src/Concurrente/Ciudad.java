@@ -195,8 +195,9 @@ public class Ciudad {
                 lock.unlock();
                 comprobarPausa();
             }
-            log.escribirEvento("El niño " +n + "ha cruzado hacia" + destino);
+
             moverNiño(n, origen, destino);
+            log.escribirEvento("El niño " +n + "ha cruzado hacia" + destino);
             cruzar(n);
 
             comprobarPausa();
@@ -267,12 +268,10 @@ public class Ciudad {
         //quitar print antes de entregar
         private void cruzar(Niño  n) {
 
-            System.out.println("Hilo " + n.getIdNiño() + " cruzando...");
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
-            System.out.println("Hilo " + n.getIdNiño() + " ha cruzado");
         }
     }
 
@@ -356,17 +355,23 @@ public class Ciudad {
     public synchronized void addDemColmena(Demogorgon d) { dem_Colmena.add(d); }
     public synchronized void removeDemColmena(Demogorgon d) { dem_Colmena.remove(d); }
 
+
     public synchronized void moverNiño(Niño n, List<Niño> origen, List<Niño> destino) {
-        origen.remove(n);
-        destino.add(n);
-        if (destino ==zona_calle_principal ) {n.setUbicacion(0);}
-        if (destino ==zona_sotano_byers ) {n.setUbicacion(1);}
-        if (destino ==zona_radio_wsqk ) {n.setUbicacion(2);}
-        if (destino ==zonaBosque ) {n.setUbicacion(3);}
-        if (destino ==zonaLaboratorio ) {n.setUbicacion(4);}
-        if (destino ==zonaCentroComercial ) {n.setUbicacion(5);}
-        if (destino ==zonaAlcantarillado ) {n.setUbicacion(6);}
-        if (destino ==zonaColmena ) {n.setUbicacion(7);}
+        if (origen.remove(n)) { // Solo si realmente estaba en el origen...
+            destino.add(n);
+            if (destino ==zona_calle_principal ) {n.setUbicacion(0);}
+            if (destino ==zona_sotano_byers ) {n.setUbicacion(1);}
+            if (destino ==zona_radio_wsqk ) {n.setUbicacion(2);}
+            if (destino ==zonaBosque ) {n.setUbicacion(3);}
+            if (destino ==zonaLaboratorio ) {n.setUbicacion(4);}
+            if (destino ==zonaCentroComercial ) {n.setUbicacion(5);}
+            if (destino ==zonaAlcantarillado ) {n.setUbicacion(6);}
+            if (destino ==zonaColmena ) {n.setUbicacion(7);}
+            // ... resto de la lógica de setUbicacion ...
+        }
+
+
+
 
     }
     public synchronized List<Niño> getListaUbicacionN(int n) {
@@ -462,9 +467,9 @@ public class Ciudad {
         List<Niño> devolver = zonaBosque;
         int zona=3;
 
-        if (zonaLaboratorio.size() > devolver.size()) devolver = zonaLaboratorio; zona=4;
-        if (zonaCentroComercial.size() > devolver.size()) devolver = zonaCentroComercial; zona=5;
-        if (zonaAlcantarillado.size() > devolver.size()) devolver = zonaAlcantarillado; zona=6;
+        if (zonaLaboratorio.size() > devolver.size()) {devolver = zonaLaboratorio; zona=4;}
+        if (zonaCentroComercial.size() > devolver.size()) {devolver = zonaCentroComercial; zona=5;}
+        if (zonaAlcantarillado.size() > devolver.size()) {devolver = zonaAlcantarillado; zona=6;}
         return zona;
 
     }
