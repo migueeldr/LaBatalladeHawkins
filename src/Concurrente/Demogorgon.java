@@ -77,11 +77,14 @@ public class Demogorgon extends Thread{
             mapa.comprobarPausa();
             if (eventos.getEventoActual() != 1) {
                 int zona=elegirZona();
+                mapa.comprobarPausa();
                 if (eventos.getEventoActual() == 4) {
                     zona= mapa.zona_niños();
+                    mapa.comprobarPausa();
                 }
                 mapa.comprobarPausa();
                 mapa.moverDemogorgon(this,mapa.getListaUbicacionD(getUbicacion()), mapa.getListaUbicacionD(zona));
+                mapa.comprobarPausa();
             }
 
             mapa.esperarSiElevenEstaActiva();
@@ -90,9 +93,11 @@ public class Demogorgon extends Thread{
             if(victima!=null){
                 try{
                     long tiempo_ataque= (long) (Math.random() * 1000+500);
+                    mapa.comprobarPausa();
                     sleep(tiempo_ataque);
                     mapa.comprobarPausa();
                     if (mapa.ataque_niño(this, victima)){
+                        mapa.comprobarPausa();
                         log.escribirEvento("El demogorgon " + id + " ha capturado a " + victima.getIdNiño());
                         incrementarCapturas();
                     }
@@ -103,8 +108,10 @@ public class Demogorgon extends Thread{
             }
             else{
                 try{
+                    mapa.comprobarPausa();
                     long espera=(long) (Math.random() * 1000 + 4000);
                     if (eventos.getEventoActual() == 2) {
+                        mapa.comprobarPausa();
                         espera = espera / 2;
                     }
                     sleep(espera);

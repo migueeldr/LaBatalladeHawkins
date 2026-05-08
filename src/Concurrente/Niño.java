@@ -35,7 +35,7 @@ public class Niño extends Thread{
         this.eventos=eventos;
         this.lleva_sangre = false;
         this.ubicacion = 0;
-        mapa.addNiñoCallePrincipal(this);
+        this.mapa.addNiñoCallePrincipal(this);
         esta_atacado=false;
         capturado=false;
 
@@ -88,35 +88,41 @@ public class Niño extends Thread{
         mapa.comprobarPausa();
         log.escribirEvento("El niño " + id + " ha nacido.");
         while(true){
+            mapa.comprobarPausa();
             mapa.moverNiño(this, mapa.getZonaCallePrincipal(), mapa.getZonaSotanoByers());
+            mapa.comprobarPausa();
 
             try{
                 long aleatorio= (long) (Math.random() * 1000+1000);
                 sleep(aleatorio);
+                mapa.comprobarPausa();
             }
             catch(Exception e){
                 mapa.comprobarPausa();
             }
             Ciudad.Portal portal_elegido=elegirPortal();
+
             try {
+                mapa.comprobarPausa();
                 portal_elegido.cruzarHabitual(this);
                 log.escribirEvento("El niño " + id + " ha cruzado el portal hacia " + this.getUbicacion());
+                mapa.comprobarPausa();
             } catch (InterruptedException e) {
                 mapa.comprobarPausa();
             }
             try{
                 long aleatorio= (long) (Math.random() * 2000+3000);
+                mapa.comprobarPausa();
                 if (eventos.getEventoActual() == 2) {
                     aleatorio= aleatorio * 2;
+                    mapa.comprobarPausa();
                 }
+                mapa.comprobarPausa();
                 sleep(aleatorio);
+                mapa.comprobarPausa();
             }
             catch(Exception e){
-                if (mapa.getPausado()) {
-                    mapa.comprobarPausa();
-
-                }
-                else {try{semaforo_ataque.acquire();}
+            {try{semaforo_ataque.acquire();}
                 catch(Exception e2){
                     mapa.comprobarPausa();
                 }}
@@ -150,6 +156,7 @@ public class Niño extends Thread{
             catch(Exception e){
                 mapa.comprobarPausa();
             }
+            mapa.comprobarPausa();
             mapa.descanso(this);
             log.escribirEvento("El niño " + id + " esta descansando.");
             try{

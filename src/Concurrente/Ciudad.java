@@ -64,15 +64,8 @@ public class Ciudad {
         lockPausa.lock();
         try {
             pausado.set(!(pausado.get()));
-            if (pausado.get()) {
-
-                synchronized (todosLosHilos) {
-                    for (Thread t : todosLosHilos) {
-                        t.interrupt();
-                    }
-                }
-            } else {
-                condReanudar.signalAll(); // Despertar a todos al reanudar
+            if (!pausado.get()) {
+                condReanudar.signalAll();
             }
         } finally {
             lockPausa.unlock();
@@ -83,11 +76,11 @@ public class Ciudad {
         lockPausa.lock();
         try {
             while (pausado.get()) {
-                condReanudar.await(); // El hilo se queda aquí hasta que se pulse reanudar
+                try {
+                    condReanudar.await();
+                } catch (InterruptedException e) {
+                }
             }
-        } catch (InterruptedException e) {
-            // Si es interrumpido mientras espera, vuelve a comprobar si sigue pausado
-            if (pausado.get()) comprobarPausa();
         } finally {
             lockPausa.unlock();
         }
@@ -162,6 +155,7 @@ public class Ciudad {
             finally { lock.unlock(); }
         }
         public void cruzarHabitual(Niño n) throws InterruptedException {
+            comprobarPausa();
             lock.lock();
             try {
                 esperandoHawkins++;
@@ -183,10 +177,13 @@ public class Ciudad {
 
             } finally {
                 lock.unlock();
+                comprobarPausa();
             }
 
             // pasan de uno en uno
+            comprobarPausa();
             lock.lock();
+
             try {
                 while (portalOcupado || esperndoUpsideDown > 0 || tormenta_activa) {
                     log.escribirEvento("El niño " +n + "esta esperando a cruzar habitual");
@@ -196,11 +193,13 @@ public class Ciudad {
                 ;
             } finally {
                 lock.unlock();
+                comprobarPausa();
             }
             log.escribirEvento("El niño " +n + "ha cruzado hacia" + destino);
             moverNiño(n, origen, destino);
             cruzar(n);
 
+            comprobarPausa();
             lock.lock();
             try {
                 portalOcupado = false;
@@ -212,12 +211,14 @@ public class Ciudad {
             } finally {
                 pEsperando--;
                 lock.unlock();
+                comprobarPausa();
             }
         }
 
 
 
         public void cruzarContrario(Niño n)  {
+            comprobarPausa();
             lock.lock();
             try {
                 esperndoUpsideDown++;
@@ -241,11 +242,13 @@ public class Ciudad {
 
             finally {
                 lock.unlock();
+                comprobarPausa();
             }
             log.escribirEvento("El niño " +n + "HA CRUZADO EN SENTIDO CONTRARIO HACIA" + destino);
             moverNiño(n, destino, origen);
             cruzar(n);
 
+            comprobarPausa();
             lock.lock();
             try {
                 portalOcupado = false;
@@ -257,6 +260,7 @@ public class Ciudad {
             } finally {
                 pEsperando--;
                 lock.unlock();
+                comprobarPausa();
             }
         }
 
@@ -448,7 +452,9 @@ public class Ciudad {
 
     }
     public void descanso(Niño n){
+        comprobarPausa();
         moverNiño(n, zona_radio_wsqk, zona_calle_principal);
+        comprobarPausa();
 
     }
 
