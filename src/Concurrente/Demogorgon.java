@@ -93,6 +93,7 @@ public class Demogorgon extends Thread{
             if(victima!=null){
                 try{
                     long tiempo_ataque= (long) (Math.random() * 1000+500);
+
                     mapa.comprobarPausa();
                     sleep(tiempo_ataque);
                     mapa.comprobarPausa();
@@ -112,7 +113,7 @@ public class Demogorgon extends Thread{
                     long espera=(long) (Math.random() * 1000 + 4000);
                     if (eventos.getEventoActual() == 2) {
                         mapa.comprobarPausa();
-                        espera = espera / 2;
+                        espera = espera / 2;   // si tormenta tiem`po entre ataques la mitad
                     }
                     sleep(espera);
                 }

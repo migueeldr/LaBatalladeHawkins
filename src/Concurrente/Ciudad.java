@@ -120,7 +120,7 @@ public class Ciudad {
 
         private int esperandoHawkins = 0;
         private int esperndoUpsideDown = 0;
-        private boolean tormenta_activa;
+        private boolean apagon_activo;
 
         private int restantesGrupo = 0;   // hilos del grupo que quedan por cruzar
         private boolean portalOcupado = false;
@@ -142,11 +142,11 @@ public class Ciudad {
             this.origen = origen;
             this.destino = destino;
         }
-        public  void setTormenta_activa(boolean tormenta_activa) {
+        public  void setApagon_activo(boolean apagon_activo) {
             lock.lock();
             try {
-                this.tormenta_activa = tormenta_activa;
-                if (!tormenta_activa) {
+                this.apagon_activo = apagon_activo;
+                if (!this.apagon_activo) {
                     condContrario.signalAll();
                     condHabitual.signalAll();
                 }
@@ -185,7 +185,7 @@ public class Ciudad {
             lock.lock();
 
             try {
-                while (portalOcupado || esperndoUpsideDown > 0 || tormenta_activa) {
+                while (portalOcupado || esperndoUpsideDown > 0 || apagon_activo) {
                     log.escribirEvento("El niño " +n + "esta esperando a cruzar habitual");
                     condHabitual.await();
                 }
@@ -225,7 +225,7 @@ public class Ciudad {
                 esperndoUpsideDown++;
                 pEsperando++;
 
-                while (portalOcupado  || tormenta_activa) {
+                while (portalOcupado  || apagon_activo) {
                     condContrario.await();
                 }
 
