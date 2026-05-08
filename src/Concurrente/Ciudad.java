@@ -115,6 +115,7 @@ public class Ciudad {
 
     public class Portal {
         private int tGrupo;
+        private int pEsperando;
         private List<Niño> origen;
         private List<Niño> destino;
 
@@ -132,7 +133,15 @@ public class Ciudad {
         private boolean portalOcupado = false;
 
         public int getNiños_Portal() {
-           return  lock.getQueueLength();
+
+            try {
+                lock.lock();
+            } catch (Exception e) {
+
+            } finally {
+                lock.unlock();
+            }
+            return pEsperando;
         }
 
         public Portal(int tGrupo , List<Niño> origen,List<Niño> destino) {//no tengo claro como se manejan los lugares
@@ -156,6 +165,7 @@ public class Ciudad {
             lock.lock();
             try {
                 esperandoHawkins++;
+                pEsperando++;
 
 
                 while (restantesGrupo == 0) {  //lo comprueban los hilos que entran despues de que pase un grupo
@@ -200,6 +210,7 @@ public class Ciudad {
                 condHabitual.signalAll();
 
             } finally {
+                pEsperando--;
                 lock.unlock();
             }
         }
@@ -210,6 +221,7 @@ public class Ciudad {
             lock.lock();
             try {
                 esperndoUpsideDown++;
+                pEsperando++;
 
                 while (portalOcupado  || tormenta_activa) {
                     condContrario.await();
@@ -243,6 +255,7 @@ public class Ciudad {
                 condHabitual.signalAll();
 
             } finally {
+                pEsperando--;
                 lock.unlock();
             }
         }

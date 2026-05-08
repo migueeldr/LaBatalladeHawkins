@@ -94,10 +94,10 @@ public class InterfazRemota extends JFrame {
             // Quitamos el (null) de todas las llamadas
             lblTotalHawkins.setText("TOTAL NIÑOS EN HAWKINS: [" + stub.niños_hawkins() + "]");
 
-            lblPortales[0].setText("PORTAL 1: [" + stub.niños_portalesBosque() + "] niños");
-            lblPortales[1].setText("PORTAL 2: [" + stub.niños_portalesLaboratorio() + "] niños");
-            lblPortales[2].setText("PORTAL 3: [" + stub.niños_portalesCentroComercial() + "] niños");
-            lblPortales[3].setText("PORTAL 4: [" + stub.niños_portalesAlcantarillado() + "] niños");
+            lblPortales[0].setText("PORTAL BOSQUE: [" + stub.niños_portalesBosque() + "] niños");
+            lblPortales[1].setText("PORTAL LABORATORIO: [" + stub.niños_portalesLaboratorio() + "] niños");
+            lblPortales[2].setText("PORTAL CENTRO COMERCIAL: [" + stub.niños_portalesCentroComercial() + "] niños");
+            lblPortales[3].setText("PORTAL ALCANTARILLADO: [" + stub.niños_portalesAlcantarillado() + "] niños");
 
             // Actualizar Niños y Demogorgons en zonas
             lblNiñosZonas[0].setText("BOSQUE (N): " + stub.niños_Bosque());
