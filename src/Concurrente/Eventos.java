@@ -38,10 +38,10 @@ public class Eventos extends Thread {
                     mapa.comprobarPausa();
                     setEventoActual(apagon);
 
-                    mapa.portaAlcantarillado.setApagon_activo(true);
-                    mapa.portalBosque.setApagon_activo(true);
-                    mapa.portaCentroComercial.setApagon_activo(true);
-                    mapa.portaLaboratorio.setApagon_activo(true);
+                    mapa.getPortaAlcantarillado().setApagon_activo(true);
+                    mapa.getPortalBosque().setApagon_activo(true);
+                    mapa.getPortaCentroComercial().setApagon_activo(true);
+                    mapa.getPortaLaboratorio().setApagon_activo(true);
 
                     mapa.comprobarPausa();
                     log.escribirEvento("El evento de APAGÓN DEL LABORATORIO ha comenzado.");
@@ -51,10 +51,10 @@ public class Eventos extends Thread {
                     sleep(duracion);
                     mapa.comprobarPausa();
 
-                    mapa.portaAlcantarillado.setApagon_activo(false);
-                    mapa.portalBosque.setApagon_activo(false);
-                    mapa.portaCentroComercial.setApagon_activo(false);
-                    mapa.portaLaboratorio.setApagon_activo(false);
+                    mapa.getPortaAlcantarillado().setApagon_activo(false);
+                    mapa.getPortalBosque().setApagon_activo(false);
+                    mapa.getPortaCentroComercial().setApagon_activo(false);
+                    mapa.getPortaLaboratorio().setApagon_activo(false);
 
                     setEventoActual(normalidad);
                     log.escribirEvento("El evento de APAGÓN DEL LABORATORIO ha terminado.");

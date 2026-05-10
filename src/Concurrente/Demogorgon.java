@@ -3,7 +3,6 @@ package Concurrente;
 import java.util.concurrent.Semaphore;
 
 public class Demogorgon extends Thread{
-    private Niño niño;
     private String id;
     private boolean lleva_niño;
     private int ubicacion;

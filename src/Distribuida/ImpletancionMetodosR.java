@@ -25,13 +25,13 @@ public class ImpletancionMetodosR extends UnicastRemoteObject implements Interfa
     }
 
     @Override
-    public int niños_portalesBosque() throws RemoteException { return mapa.portalBosque.getNiños_Portal(); }
+    public int niños_portalesBosque() throws RemoteException { return mapa.getPortalBosque().getNiños_Portal(); }
     @Override
-    public int niños_portalesAlcantarillado() throws RemoteException { return mapa.portaAlcantarillado.getNiños_Portal(); }
+    public int niños_portalesAlcantarillado() throws RemoteException { return mapa.getPortaAlcantarillado().getNiños_Portal(); }
     @Override
-    public int niños_portalesCentroComercial() throws RemoteException { return mapa.portaCentroComercial.getNiños_Portal(); }
+    public int niños_portalesCentroComercial() throws RemoteException { return mapa.getPortaCentroComercial().getNiños_Portal(); }
     @Override
-    public int niños_portalesLaboratorio() throws RemoteException { return mapa.portaLaboratorio.getNiños_Portal(); }
+    public int niños_portalesLaboratorio() throws RemoteException { return mapa.getPortaLaboratorio().getNiños_Portal(); }
 
     @Override
     public int niños_Bosque() throws RemoteException { return mapa.getZonaBosque().size(); }

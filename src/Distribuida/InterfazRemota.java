@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 public class InterfazRemota extends JFrame {
-    private final InterfazCS stub;
+    private final InterfazCS obj;
 
     // Componentes de Resumen Hawkins y Portales
     private JLabel lblTotalHawkins;
@@ -25,13 +25,13 @@ public class InterfazRemota extends JFrame {
     private JButton btnPausa;
     private boolean programaPausado = false;
 
-    public InterfazRemota(InterfazCS stub) {
-        this.stub = stub;
+    public InterfazRemota(InterfazCS obj) {
+        this.obj = obj;
         configurarVentana();
         inicializarComponentes();
 
         // Timer para actualización automática cada 500ms
-        Timer timer = new Timer(500, e -> actualizarDatos());
+        Timer timer = new Timer(200, e -> actualizarDatos());
         timer.start();
     }
 
@@ -92,32 +92,32 @@ public class InterfazRemota extends JFrame {
     private void actualizarDatos() {
         try {
             // Quitamos el (null) de todas las llamadas
-            lblTotalHawkins.setText("TOTAL NIÑOS EN HAWKINS: [" + stub.niños_hawkins() + "]");
+            lblTotalHawkins.setText("TOTAL NIÑOS EN HAWKINS: [" + obj.niños_hawkins() + "]");
 
-            lblPortales[0].setText("PORTAL BOSQUE: [" + stub.niños_portalesBosque() + "] niños");
-            lblPortales[1].setText("PORTAL LABORATORIO: [" + stub.niños_portalesLaboratorio() + "] niños");
-            lblPortales[2].setText("PORTAL CENTRO COMERCIAL: [" + stub.niños_portalesCentroComercial() + "] niños");
-            lblPortales[3].setText("PORTAL ALCANTARILLADO: [" + stub.niños_portalesAlcantarillado() + "] niños");
+            lblPortales[0].setText("PORTAL BOSQUE: [" + obj.niños_portalesBosque() + "] niños");
+            lblPortales[1].setText("PORTAL LABORATORIO: [" + obj.niños_portalesLaboratorio() + "] niños");
+            lblPortales[2].setText("PORTAL CENTRO COMERCIAL: [" + obj.niños_portalesCentroComercial() + "] niños");
+            lblPortales[3].setText("PORTAL ALCANTARILLADO: [" + obj.niños_portalesAlcantarillado() + "] niños");
 
             // Actualizar Niños y Demogorgons en zonas
-            lblNiñosZonas[0].setText("BOSQUE (N): " + stub.niños_Bosque());
-            lblNiñosZonas[1].setText("LABORATORIO (N): " + stub.niños_Laboratorio());
-            lblNiñosZonas[2].setText("CENTRO COM. (N): " + stub.niños_CentroComercial());
-            lblNiñosZonas[3].setText("ALCANTARILLADO (N): " + stub.niños_Alcantarillado());
-            lblNiñosZonas[4].setText("[!] COLMENA (N): " + stub.niños_Colmena());
+            lblNiñosZonas[0].setText("BOSQUE (N): " + obj.niños_Bosque());
+            lblNiñosZonas[1].setText("LABORATORIO (N): " + obj.niños_Laboratorio());
+            lblNiñosZonas[2].setText("CENTRO COM. (N): " + obj.niños_CentroComercial());
+            lblNiñosZonas[3].setText("ALCANTARILLADO (N): " + obj.niños_Alcantarillado());
+            lblNiñosZonas[4].setText("[!] COLMENA (N): " + obj.niños_Colmena());
 
-            lblDemosZonas[0].setText("BOSQUE (D): " + stub.demogorgons_Bosque());
-            lblDemosZonas[1].setText("LABORATORIO (D): " + stub.demogorgons_Laboratorio());
-            lblDemosZonas[2].setText("CENTRO COM. (D): " + stub.demogorgons_CentroComercial());
-            lblDemosZonas[3].setText("ALCANTARILLADO (D): " + stub.demogorgons_Alcantarillado());
-            lblDemosZonas[4].setText("COLMENA (D): " + stub.demogorgons_Colmena());
+            lblDemosZonas[0].setText("BOSQUE (D): " + obj.demogorgons_Bosque());
+            lblDemosZonas[1].setText("LABORATORIO (D): " + obj.demogorgons_Laboratorio());
+            lblDemosZonas[2].setText("CENTRO COM. (D): " + obj.demogorgons_CentroComercial());
+            lblDemosZonas[3].setText("ALCANTARILLADO (D): " + obj.demogorgons_Alcantarillado());
+            lblDemosZonas[4].setText("COLMENA (D): " + obj.demogorgons_Colmena());
 
             // Ranking (también sin parámetros)
-            ArrayList<String> top3 = stub.top3_Demogorgons();
+            ArrayList<String> top3 = obj.top3_Demogorgons();
             txtRanking.setText("TOP 3 CAPTURAS:\n1. " + top3.get(0) + "\n2. " + top3.get(1) + "\n3. " + top3.get(2));
 
             // Evento Global (también sin parámetros)
-            lblEventoTipo.setText("EVENTO: " + stub.devolver_evento());
+            lblEventoTipo.setText("EVENTO: " + obj.devolver_evento());
 
         } catch (RemoteException ex) {
             System.err.println("Error de conexión RMI: " + ex.getMessage());
@@ -126,7 +126,7 @@ public class InterfazRemota extends JFrame {
 
     private void alternarSimulacion() {
         try {
-            stub.start_stop(); // Llama al método remoto para pausar/reanudar [cite: 148]
+            obj.start_stop(); // Llama al método remoto para pausar/reanudar [cite: 148]
             programaPausado = !programaPausado;
             btnPausa.setText(programaPausado ? "REANUDAR PROGRAMA" : "DETENER PROGRAMA PRINCIPAL");
             btnPausa.setBackground(programaPausado ? Color.GREEN : Color.RED);

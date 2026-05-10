@@ -72,10 +72,10 @@ public class Niño extends Thread{
 
     public Ciudad.Portal elegirPortal(){
         int portal_elegido= (int) (Math.random() * 4+3);
-        if(portal_elegido==3){return mapa.portalBosque;}
-        if(portal_elegido==4){return mapa.portaLaboratorio;}
-        if(portal_elegido==5){return mapa.portaCentroComercial;}
-        else {return mapa.portaAlcantarillado;}
+        if(portal_elegido==3){return mapa.getPortalBosque();}
+        if(portal_elegido==4){return mapa.getPortaLaboratorio();}
+        if(portal_elegido==5){return mapa.getPortaCentroComercial();}
+        else {return mapa.getPortaAlcantarillado();}
     }
     public void liberarDeAtaque(){
         semaforo_ataque.release();

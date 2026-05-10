@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class LogHawkins {
-        private final String nombreArchivo = "hawkins.txt"; // Nombre obligatorio
+        private final String nombreArchivo = "hawkins.txt";
         private final DateTimeFormatter formateador = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         public synchronized void escribirEvento(String mensaje) {

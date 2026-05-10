@@ -10,11 +10,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Ciudad {
-    private Niño niño;
-    private Demogorgon demogorgon;
     private int contador_sangre;
     private final LogHawkins log;
-    private Eventos eventos;
     private AtomicInteger contador_capturas;
     private List<Niño> zona_calle_principal = Collections.synchronizedList(new ArrayList<>());
     private List<Niño> zona_sotano_byers = Collections.synchronizedList(new ArrayList<>());
@@ -25,12 +22,11 @@ public class Ciudad {
     private List<Niño> zonaCentroComercial = Collections.synchronizedList(new ArrayList<>());
     private List<Niño> zonaAlcantarillado = Collections.synchronizedList(new ArrayList<>());
     private List<Niño> zonaColmena = Collections.synchronizedList(new ArrayList<>());
-//
-    //creo que esto deberia ser private y hacer getters
-    public Portal portalBosque = new Portal(2, zona_sotano_byers,zonaBosque);
-    public Portal portaLaboratorio = new Portal(3, zona_sotano_byers,zonaLaboratorio);
-    public Portal portaCentroComercial = new Portal(4,zona_sotano_byers,zonaCentroComercial);
-    public Portal portaAlcantarillado = new Portal(2, zona_sotano_byers,zonaAlcantarillado);
+
+    private Portal portalBosque = new Portal(2, zona_sotano_byers,zonaBosque);
+    private Portal portaLaboratorio = new Portal(3, zona_sotano_byers,zonaLaboratorio);
+    private Portal portaCentroComercial = new Portal(4,zona_sotano_byers,zonaCentroComercial);
+    private Portal portaAlcantarillado = new Portal(2, zona_sotano_byers,zonaAlcantarillado);
 
     private List<Demogorgon> dem_Bosque=Collections.synchronizedList(new ArrayList<>());
     private List<Demogorgon> dem_Laboratorio=Collections.synchronizedList(new ArrayList<>());
@@ -46,7 +42,6 @@ public class Ciudad {
 
     private Semaphore semaforo_Contador= new Semaphore(1);
 
-    // En Ciudad.java
     private AtomicBoolean pausado= new AtomicBoolean(false);
     private final ReentrantLock lockPausa = new ReentrantLock();
     private final Condition condReanudar = lockPausa.newCondition();
@@ -92,18 +87,6 @@ public class Ciudad {
         }
         decrementar_contador_sangre();
         notifyAll();
-    }
-    public Ciudad(LogHawkins log, Eventos eventos) {
-        this.log = log;
-        this.eventos = eventos;
-    }
-
-    public List<Demogorgon> getDem_Todos() {
-        return dem_Todos;
-    }
-
-    public void setDem_Todos(List<Demogorgon> dem_Todos) {
-        this.dem_Todos = dem_Todos;
     }
 
     public class Portal {
@@ -282,27 +265,8 @@ public class Ciudad {
         contador_sangre=0;
         log=new LogHawkins();
     }
-    public int getContador_capturas(){
-        return contador_capturas.get();
-    }
-    public synchronized int getContador_sangre(){
-        return contador_sangre;
-    }
-    public synchronized void incrementar_contador_sangre(){
-        contador_sangre++;
-    }
-    public synchronized void decrementar_contador_sangre(){
-        contador_sangre--;
-    }
-    public void incrementar_contador_capturas(Demogorgon d){
-        contador_capturas.incrementAndGet();
-            if (getContador_capturas()%8==0){
-                d.crearDemogorgon();
-            }
-    }
-    public void decrementar_contador_capturas(){
-        contador_capturas.decrementAndGet();
-    }
+
+    //COSAS NIÑO
     public synchronized List<Niño> getZonaCallePrincipal() { return zona_calle_principal; }
     public synchronized void addNiñoCallePrincipal(Niño n) { zona_calle_principal.add(n); }
     public synchronized void removeNiñoCallePrincipal(Niño n) { zona_calle_principal.remove(n); }
@@ -335,6 +299,74 @@ public class Ciudad {
     public synchronized void addNiñoColmena(Niño n) { zonaColmena.add(n); }
     public synchronized void removeNiñoColmena(Niño n) { zonaColmena.remove(n); }
 
+    public synchronized void moverNiño(Niño n, List<Niño> origen, List<Niño> destino) {
+        if (origen.remove(n)) { // devuelve true si todavia no lo han movido
+            destino.add(n);
+            if (destino ==zona_calle_principal ) {n.setUbicacion(0);}
+            if (destino ==zona_sotano_byers ) {n.setUbicacion(1);}
+            if (destino ==zona_radio_wsqk ) {n.setUbicacion(2);}
+            if (destino ==zonaBosque ) {n.setUbicacion(3);}
+            if (destino ==zonaLaboratorio ) {n.setUbicacion(4);}
+            if (destino ==zonaCentroComercial ) {n.setUbicacion(5);}
+            if (destino ==zonaAlcantarillado ) {n.setUbicacion(6);}
+            if (destino ==zonaColmena ) {n.setUbicacion(7);}
+
+        }
+    }
+    public synchronized List<Niño> getListaUbicacionN(int n) {
+        if (n == 0) {
+            return getZonaCallePrincipal();
+        }
+        if (n == 1) {
+            return getZonaSotanoByers();
+        }
+        if (n == 2) {
+            return getZonaRadioWsqk();
+        }
+        if (n == 3) {
+            return getZonaBosque();
+        }
+        if (n == 4) {
+            return getZonaLaboratorio();
+        }
+        if (n == 5) {
+            return getZonaCentroComercial();
+        }
+        if (n == 6) {
+            return getZonaAlcantarillado();
+        } else {
+            return getZonaColmena();
+        }
+    }
+    public void entregar_sangre(Niño n){
+        try{
+            moverNiño(n, zona_sotano_byers, zona_radio_wsqk);
+            semaforo_Contador.acquire();
+            contador_sangre++;
+            n.setLleva_sangre(false);
+            semaforo_Contador.release();
+        }
+        catch(Exception e){}
+
+    }
+    public void descanso(Niño n){
+        comprobarPausa();
+        moverNiño(n, zona_radio_wsqk, zona_calle_principal);
+        comprobarPausa();
+
+    }
+
+    public int zona_niños(){
+        List<Niño> devolver = zonaBosque;
+        int zona=3;
+
+        if (zonaLaboratorio.size() > devolver.size()) {devolver = zonaLaboratorio; zona=4;}
+        if (zonaCentroComercial.size() > devolver.size()) {devolver = zonaCentroComercial; zona=5;}
+        if (zonaAlcantarillado.size() > devolver.size()) {devolver = zonaAlcantarillado; zona=6;}
+        return zona;
+
+    }
+    //COSAS DEMOGORGON
     public synchronized List<Demogorgon> getDemBosque() { return dem_Bosque; }
     public synchronized void addDemBosque(Demogorgon d) { dem_Bosque.add(d); }
     public synchronized void removeDemBosque(Demogorgon d) { dem_Bosque.remove(d); }
@@ -356,34 +388,6 @@ public class Ciudad {
     public synchronized void removeDemColmena(Demogorgon d) { dem_Colmena.remove(d); }
 
 
-    public synchronized void moverNiño(Niño n, List<Niño> origen, List<Niño> destino) {
-        if (origen.remove(n)) { // Solo si realmente estaba en el origen...
-            destino.add(n);
-            if (destino ==zona_calle_principal ) {n.setUbicacion(0);}
-            if (destino ==zona_sotano_byers ) {n.setUbicacion(1);}
-            if (destino ==zona_radio_wsqk ) {n.setUbicacion(2);}
-            if (destino ==zonaBosque ) {n.setUbicacion(3);}
-            if (destino ==zonaLaboratorio ) {n.setUbicacion(4);}
-            if (destino ==zonaCentroComercial ) {n.setUbicacion(5);}
-            if (destino ==zonaAlcantarillado ) {n.setUbicacion(6);}
-            if (destino ==zonaColmena ) {n.setUbicacion(7);}
-            // ... resto de la lógica de setUbicacion ...
-        }
-
-
-
-
-    }
-    public synchronized List<Niño> getListaUbicacionN(int n) {
-        if (n == 0 ) {return  getZonaCallePrincipal();}
-        if (n ==1 ) {return  getZonaSotanoByers();}
-        if (n ==2 ) {return  getZonaRadioWsqk();}
-        if (n ==3 ) {return  getZonaBosque();}
-        if (n ==4 ) {return  getZonaLaboratorio();}
-        if (n ==5 ) {return  getZonaCentroComercial();}
-        if (n ==6 ) {return  getZonaAlcantarillado();}
-        else  {return  getZonaColmena();}
-    }
     public synchronized List<Demogorgon> getListaUbicacionD(int n) {
 
         if (n ==3 ) {return  getDemBosque();}
@@ -445,34 +449,7 @@ public class Ciudad {
 
 
 
-    public void entregar_sangre(Niño n){
-        try{
-            moverNiño(n, zona_sotano_byers, zona_radio_wsqk);
-            semaforo_Contador.acquire();
-            contador_sangre++;
-            n.setLleva_sangre(false);
-            semaforo_Contador.release();
-        }
-        catch(Exception e){}
 
-    }
-    public void descanso(Niño n){
-        comprobarPausa();
-        moverNiño(n, zona_radio_wsqk, zona_calle_principal);
-        comprobarPausa();
-
-    }
-
-    public int zona_niños(){
-        List<Niño> devolver = zonaBosque;
-        int zona=3;
-
-        if (zonaLaboratorio.size() > devolver.size()) {devolver = zonaLaboratorio; zona=4;}
-        if (zonaCentroComercial.size() > devolver.size()) {devolver = zonaCentroComercial; zona=5;}
-        if (zonaAlcantarillado.size() > devolver.size()) {devolver = zonaAlcantarillado; zona=6;}
-        return zona;
-
-    }
 
 
     public void setElevenActiva(boolean activa) {
@@ -503,5 +480,47 @@ public class Ciudad {
             lockEleven.unlock();
         }
     }
+    public Portal getPortalBosque() {
+        return portalBosque;
+    }
 
+    public Portal getPortaLaboratorio() {
+        return portaLaboratorio;
+    }
+
+    public Portal getPortaCentroComercial() {
+        return portaCentroComercial;
+    }
+
+    public Portal getPortaAlcantarillado() {
+        return portaAlcantarillado;
+    }
+    public List<Demogorgon> getDem_Todos() {
+        return dem_Todos;
+    }
+
+    public void setDem_Todos(List<Demogorgon> dem_Todos) {
+        this.dem_Todos = dem_Todos;
+    }
+    public int getContador_capturas(){
+        return contador_capturas.get();
+    }
+    public synchronized int getContador_sangre(){
+        return contador_sangre;
+    }
+    public synchronized void incrementar_contador_sangre(){
+        contador_sangre++;
+    }
+    public synchronized void decrementar_contador_sangre(){
+        contador_sangre--;
+    }
+    public void incrementar_contador_capturas(Demogorgon d){
+        contador_capturas.incrementAndGet();
+        if (getContador_capturas()%8==0){
+            d.crearDemogorgon();
+        }
+    }
+    public void decrementar_contador_capturas(){
+        contador_capturas.decrementAndGet();
+    }
 }
