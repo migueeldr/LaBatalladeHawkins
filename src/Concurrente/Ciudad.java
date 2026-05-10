@@ -95,9 +95,7 @@ public class Ciudad {
         private List<Niño> origen;
         private List<Niño> destino;
 
-
         private final ReentrantLock lock = new ReentrantLock(true);
-
         private final Condition condHabitual = lock.newCondition();
         private final Condition condContrario = lock.newCondition();
 
@@ -108,24 +106,45 @@ public class Ciudad {
         private int restantesGrupo = 0;   // hilos del grupo que quedan por cruzar
         private boolean portalOcupado = false;
 
-        public int getNiños_Portal() {
+        // --- NUEVAS ESTRUCTURAS PARA SEGUIMIENTO REAL EN INTERFAZ ---
+        private List<Niño> colaEspera = new ArrayList<>();
+        private List<Niño> grupoFormado = new ArrayList<>();
+        private Niño niñoCruzando = null;
+        private List<Niño> colaEsperaContrario = new ArrayList<>();
 
-            try {
-                lock.lock();
-            } catch (Exception e) {
-
-            } finally {
-                lock.unlock();
-            }
-            return pEsperando;
-        }
-
-        public Portal(int tGrupo , List<Niño> origen,List<Niño> destino) {//no tengo claro como se manejan los lugares
+        public Portal(int tGrupo , List<Niño> origen, List<Niño> destino) {
             this.tGrupo=tGrupo;
             this.origen = origen;
             this.destino = destino;
         }
-        public  void setApagon_activo(boolean apagon_activo) {
+
+        // --- GETTERS SEGUROS PARA LA INTERFAZ GRÁFICA ---
+        public List<Niño> getColaEspera() {
+            lock.lock();
+            try { return new ArrayList<>(colaEspera); } finally { lock.unlock(); }
+        }
+
+        public List<Niño> getGrupoFormado() {
+            lock.lock();
+            try { return new ArrayList<>(grupoFormado); } finally { lock.unlock(); }
+        }
+
+        public Niño getNiñoCruzando() {
+            lock.lock();
+            try { return niñoCruzando; } finally { lock.unlock(); }
+        }
+
+        public List<Niño> getColaEsperaContrario() {
+            lock.lock();
+            try { return new ArrayList<>(colaEsperaContrario); } finally { lock.unlock(); }
+        }
+
+        public int getNiños_Portal() {
+            lock.lock();
+            try { return pEsperando; } finally { lock.unlock(); }
+        }
+
+        public void setApagon_activo(boolean apagon_activo) {
             lock.lock();
             try {
                 this.apagon_activo = apagon_activo;
@@ -133,31 +152,34 @@ public class Ciudad {
                     condContrario.signalAll();
                     condHabitual.signalAll();
                 }
-            }
-            catch (Exception e) {}
+            } catch (Exception e) {}
             finally { lock.unlock(); }
         }
+
         public void cruzarHabitual(Niño n) throws InterruptedException {
             comprobarPausa();
             lock.lock();
             try {
+                colaEspera.add(n); // [REALIDAD] El niño entra a la cola
                 esperandoHawkins++;
                 pEsperando++;
 
-
-                while (restantesGrupo == 0) {  //lo comprueban los hilos que entran despues de que pase un grupo
-                    if (esperandoHawkins >= tGrupo && esperndoUpsideDown == 0) {  //forma grupo cuando toca
+                while (restantesGrupo == 0) {
+                    if (esperandoHawkins >= tGrupo && esperndoUpsideDown == 0) {
                         restantesGrupo = tGrupo;
+                        // [REALIDAD] Trasladamos 'tGrupo' niños de la cola al grupo cerrado
+                        for (int i = 0; i < tGrupo; i++) {
+                            if (!colaEspera.isEmpty()) {
+                                grupoFormado.add(colaEspera.remove(0));
+                            }
+                        }
                         condHabitual.signalAll();
-                        log.escribirEvento("El niño " +n + "ha intentado formar grupo");
+                        log.escribirEvento("El niño " + n.getIdNiño() + " ha intentado formar grupo");
                     } else {
                         condHabitual.await();
-                        log.escribirEvento("El niño " +n + "no ha podido formar grupo");
                     }
                 }
-
                 esperandoHawkins--;
-
             } finally {
                 lock.unlock();
                 comprobarPausa();
@@ -166,32 +188,35 @@ public class Ciudad {
             // pasan de uno en uno
             comprobarPausa();
             lock.lock();
-
             try {
-                while (portalOcupado || esperndoUpsideDown > 0 || apagon_activo) {
-                    log.escribirEvento("El niño " +n + "esta esperando a cruzar habitual");
+                // Condición extra: Solo pueden avanzar los que están dentro del grupo formado
+                while (portalOcupado || esperndoUpsideDown > 0 || apagon_activo || !grupoFormado.contains(n)) {
                     condHabitual.await();
                 }
                 portalOcupado = true;
-                ;
+
+                // [REALIDAD] El niño actual se asigna al carril de cruce
+                niñoCruzando = n;
+                grupoFormado.remove(n);
             } finally {
                 lock.unlock();
                 comprobarPausa();
             }
 
+
+            cruzar(n); // El hilo duerme 1s simulando el cruce
             moverNiño(n, origen, destino);
-            log.escribirEvento("El niño " +n + "ha cruzado hacia" + destino);
-            cruzar(n);
+            log.escribirEvento("El niño " + n.getIdNiño() + " ha cruzado hacia " + destino);
 
             comprobarPausa();
             lock.lock();
             try {
                 portalOcupado = false;
+                niñoCruzando = null; // [REALIDAD] Ya terminó de cruzar
                 restantesGrupo--;
 
                 condContrario.signalAll();
                 condHabitual.signalAll();
-
             } finally {
                 pEsperando--;
                 lock.unlock();
@@ -199,12 +224,11 @@ public class Ciudad {
             }
         }
 
-
-
         public void cruzarContrario(Niño n)  {
             comprobarPausa();
             lock.lock();
             try {
+                colaEsperaContrario.add(n);
                 esperndoUpsideDown++;
                 pEsperando++;
 
@@ -213,34 +237,32 @@ public class Ciudad {
                 }
 
                 esperndoUpsideDown--;
+                colaEsperaContrario.remove(n);
                 portalOcupado = true;
-
-
-
+                niñoCruzando = n; // [REALIDAD] Niño que vuelve cruzando
             }
             catch(Exception e){
                 esperndoUpsideDown--;
-
-                try{n.getSemaphore_ataque().acquire();}
-                catch(Exception e2){}}
-
-            finally {
+                colaEsperaContrario.remove(n);
+                try { n.getSemaphore_ataque().acquire(); } catch(Exception e2) {}
+            } finally {
                 lock.unlock();
                 comprobarPausa();
             }
-            log.escribirEvento("El niño " +n + "HA CRUZADO EN SENTIDO CONTRARIO HACIA" + destino);
-            moverNiño(n, destino, origen);
+
+
             cruzar(n);
+            log.escribirEvento("El niño " + n.getIdNiño() + " HA CRUZADO EN SENTIDO CONTRARIO");
+            moverNiño(n, destino, origen);
 
             comprobarPausa();
             lock.lock();
             try {
                 portalOcupado = false;
+                niñoCruzando = null; // [REALIDAD] Ya terminó de cruzar
 
-                // Prioridad contrarios
                 condContrario.signalAll();
                 condHabitual.signalAll();
-
             } finally {
                 pEsperando--;
                 lock.unlock();
@@ -248,13 +270,8 @@ public class Ciudad {
             }
         }
 
-        //quitar print antes de entregar
-        private void cruzar(Niño  n) {
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
+        private void cruzar(Niño n) {
+            try { Thread.sleep(1000); } catch (InterruptedException e) {}
         }
     }
 

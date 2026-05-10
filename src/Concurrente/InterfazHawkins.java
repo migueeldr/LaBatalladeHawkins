@@ -1,4 +1,256 @@
 package Concurrente;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.util.List;
+
+public class InterfazHawkins extends JFrame {
+    private Ciudad mapa;
+    private Eventos eventos;
+
+    // Paleta de colores suaves (Menos fosforitos)
+    private final Color bgPrincipal = new Color(35, 35, 35);
+    private final Color bgPaneles = new Color(45, 45, 45);
+    private final Color bgTexto = new Color(30, 30, 30);
+
+    private final Color verde = new Color(106, 243, 106); // DarkSeaGreen
+    private final Color amarillo = new Color(237, 221, 72); // Khaki
+    private final Color azul = new Color(49, 168, 218); // SkyBlue
+    private final Color rojo = new Color(205, 92, 92); // IndianRed
+    private final Color naranja = new Color(244, 164, 96); // SandyBrown
+    private final Color magenta = new Color(186, 47, 191, 255); // Gainsboro
+
+    // Componentes de Status
+    private JLabel lblSangre, lblCapturas, lblEventoActual;
+
+    // Paneles Laterales
+    private JTextArea txtCallePrincipal, txtRadioWsqk, txtColmena;
+
+    // Filas Centrales (Portales y Zonas UD)
+    private JTextArea[] txtEsperaPortal = new JTextArea[4];
+    private JTextArea[] txtGrupoFormado = new JTextArea[4];
+    private JTextArea[] txtCruzando = new JTextArea[4];
+    private JTextArea[] txtNiñosUD = new JTextArea[4];
+    private JTextArea[] txtDemosUD = new JTextArea[4];
+
+    public InterfazHawkins(Ciudad mapa, Eventos eventos) {
+        this.mapa = mapa;
+        this.eventos = eventos;
+
+        setTitle("Interfaz Grafica Hawkins");
+        setSize(1400, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout(15, 15));
+        getContentPane().setBackground(bgPrincipal);
+
+        // --- NORTE: STATUS GLOBAL ---
+        JPanel panelStatus = new JPanel(new GridLayout(1, 3));
+        panelStatus.setBackground(bgPaneles);
+        panelStatus.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        lblSangre = crearLabelStatus("🩸 SANGRE: 0", rojo);
+        lblCapturas = crearLabelStatus("👤 CAPTURAS: 0", naranja);
+        lblEventoActual = crearLabelStatus("EVENTO: NORMALIDAD", azul);
+        panelStatus.add(lblSangre);
+        panelStatus.add(lblCapturas);
+        panelStatus.add(lblEventoActual);
+        add(panelStatus, BorderLayout.NORTH);
+
+        // --- OESTE: HAWKINS LATERAL ---
+        JPanel panelOeste = new JPanel(new GridLayout(2, 1, 10, 10));
+        panelOeste.setOpaque(false);
+        panelOeste.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 0));
+
+        txtCallePrincipal = crearTextArea();
+        txtRadioWsqk = crearTextArea();
+
+        panelOeste.add(crearPanelScroll("CALLE PRINCIPAL", txtCallePrincipal, verde, new Dimension(220, 0)));
+        panelOeste.add(crearPanelScroll("RADIO WSQK ", txtRadioWsqk, verde, new Dimension(220, 0)));
+        add(panelOeste, BorderLayout.WEST);
+
+        // --- ESTE: COLMENA LATERAL ---
+        JPanel panelEste = new JPanel(new BorderLayout());
+        panelEste.setOpaque(false);
+        panelEste.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
+
+        txtColmena = crearTextArea();
+        panelEste.add(crearPanelScroll("COLMENA ", txtColmena, rojo, new Dimension(220, 0)), BorderLayout.CENTER);
+        add(panelEste, BorderLayout.EAST);
+
+        // --- CENTRO: EL EJE DE PORTALES (TAMAÑOS FIJOS) ---
+        JPanel panelEje = new JPanel();
+        panelEje.setLayout(new BoxLayout(panelEje, BoxLayout.Y_AXIS));
+        panelEje.setOpaque(false);
+
+        String[] nombresZonas = {"BOSQUE", "LABORATORIO", "CENTRO COMERCIAL", "ALCANTARILLADO"};
+        int[] capacidades = {2, 3, 4, 2};
+
+        for (int i = 0; i < 4; i++) {
+            panelEje.add(crearFilaPortal(i, nombresZonas[i], capacidades[i]));
+            if (i < 3) panelEje.add(Box.createRigidArea(new Dimension(0, 15))); // Espaciado fijo entre filas
+        }
+
+        JScrollPane scrollCentral = new JScrollPane(panelEje);
+        scrollCentral.setOpaque(false);
+        scrollCentral.getViewport().setOpaque(false);
+        scrollCentral.setBorder(null);
+        add(scrollCentral, BorderLayout.CENTER);
+
+        Timer timer = new Timer(200, e -> refrescarDatos());
+        timer.start();
+    }
+
+    private JPanel crearFilaPortal(int i, String nombre, int cap) {
+        JPanel fila = new JPanel();
+        fila.setLayout(new BoxLayout(fila, BoxLayout.X_AXIS));
+        fila.setBackground(bgPaneles);
+        fila.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+
+        // Tamaños estrictamente fijos para cada fase
+        Dimension dimSotano = new Dimension(160, 130);
+        Dimension dimGrupo = new Dimension(160, 130);
+        Dimension dimCruzando = new Dimension(160, 130);
+        Dimension dimUDNiños = new Dimension(220, 130);
+        Dimension dimUDDemos = new Dimension(140, 130);
+
+        // 1. Sótano: Espera
+        txtEsperaPortal[i] = crearTextArea();
+        txtEsperaPortal[i].setForeground(amarillo);
+        fila.add(Box.createRigidArea(new Dimension(5, 0)));
+        fila.add(crearPanelScroll("SÓTANO: Cola ("+cap+")", txtEsperaPortal[i], amarillo, dimSotano));
+
+        // 2. Grupo Formado
+        txtGrupoFormado[i] = crearTextArea();
+        txtGrupoFormado[i].setForeground(naranja);
+        fila.add(Box.createRigidArea(new Dimension(5, 0)));
+        fila.add(crearPanelScroll("GRUPO FORMADO", txtGrupoFormado[i], naranja, dimGrupo));
+
+        // 3. Cruzando
+        txtCruzando[i] = crearTextArea();
+        txtCruzando[i].setForeground(azul);
+        txtCruzando[i].setFont(new Font("Monospaced", Font.BOLD, 14));
+        fila.add(Box.createRigidArea(new Dimension(5, 0)));
+        fila.add(crearPanelScroll("ATRAVESANDO PORTAL", txtCruzando[i], azul, dimCruzando));
+
+        // 4. Upside Down (Niños)
+        txtNiñosUD[i] = crearTextArea();
+        txtNiñosUD[i].setForeground(magenta);
+        fila.add(Box.createRigidArea(new Dimension(10, 0)));
+        fila.add(crearPanelScroll(nombre + " (Niños)", txtNiñosUD[i], magenta, dimUDNiños));
+
+        // 5. Upside Down (Demos)
+        txtDemosUD[i] = crearTextArea();
+        txtDemosUD[i].setForeground(rojo);
+        fila.add(Box.createRigidArea(new Dimension(5, 0)));
+        fila.add(crearPanelScroll(nombre + " (Demogogorgons)", txtDemosUD[i], rojo, dimUDDemos));
+
+        fila.add(Box.createRigidArea(new Dimension(5, 0)));
+
+        return fila;
+    }
+
+    private void refrescarDatos() {
+        // Refrescar Status y Zonas Laterales
+        lblSangre.setText("🩸 SANGRE: " + mapa.getContador_sangre());
+        lblCapturas.setText("👤 CAPTURAS: " + mapa.getContador_capturas());
+        String[] evs = {"NORMALIDAD", "APAGÓN", "TORMENTA", "ELEVEN", "RED MENTAL"};
+        lblEventoActual.setText("EVENTO: " + evs[eventos.getEventoActual()]);
+
+        // Listar los niños en las zonas seguras globales
+        txtCallePrincipal.setText(listarHilos(mapa.getZonaCallePrincipal()));
+        txtRadioWsqk.setText(listarHilos(mapa.getZonaRadioWsqk()));
+        txtColmena.setText(listarHilos(mapa.getZonaColmena()));
+
+        Ciudad.Portal[] portals = {mapa.getPortalBosque(), mapa.getPortaLaboratorio(), mapa.getPortaCentroComercial(), mapa.getPortaAlcantarillado()};
+        for (int i = 0; i < 4; i++) {
+            Ciudad.Portal portalActual = portals[i];
+
+            // 1. Mostrar niños reales esperando en cola de este portal
+            txtEsperaPortal[i].setText(listarHilos(portalActual.getColaEspera()));
+
+            // 2. Mostrar niños reales que han formado el grupo y están esperando que el portal se libere
+            txtGrupoFormado[i].setText(listarHilos(portalActual.getGrupoFormado()));
+
+            // 3. Mostrar el único niño que está cruzando (ejecutando el sleep real)
+            Niño cruzando = portalActual.getNiñoCruzando();
+            if (cruzando != null) {
+                txtCruzando[i].setText("[" + cruzando.getIdNiño() + "]");
+            } else {
+                txtCruzando[i].setText("---");
+            }
+
+            // 4. Mostrar estado de las zonas del Upside Down (Niños)
+            txtNiñosUD[i].setText(listarHilos(mapa.getListaUbicacionN(i + 3)));
+
+            // 5. Mostrar estado de las zonas del Upside Down (Demogorgons)
+            StringBuilder sbDemos = new StringBuilder();
+            List<Demogorgon> demos = mapa.getListaUbicacionD(i + 3);
+            synchronized (demos) {
+                for (Demogorgon d : demos) {
+                    sbDemos.append("[").append(d.getIdDemogorgon()).append("]\n");
+                }
+            }
+            txtDemosUD[i].setText(sbDemos.toString());
+        }
+    }
+
+    private String listarHilos(List<Niño> lista) {
+        StringBuilder sb = new StringBuilder();
+        synchronized (lista) {
+            for (Niño n : lista) {
+                sb.append("[").append(n.getIdNiño()).append("]");
+                if (n.getLleva_sangre()) sb.append("🩸");
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    private JLabel crearLabelStatus(String t, Color c) {
+        JLabel l = new JLabel(t, SwingConstants.CENTER);
+        l.setForeground(c);
+        l.setFont(new Font("SansSerif", Font.BOLD, 18));
+        return l;
+    }
+
+    private JTextArea crearTextArea() {
+        JTextArea a = new JTextArea();
+        a.setBackground(bgTexto);
+        a.setForeground(verde);
+        a.setEditable(false);
+        a.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        a.setMargin(new Insets(5, 5, 5, 5));
+        return a;
+    }
+
+    private JScrollPane crearPanelScroll(String tit, JTextArea a, Color borderColor, Dimension fixedSize) {
+        JScrollPane s = new JScrollPane(a);
+
+        // --- CAMBIOS APLICADOS AQUÍ ---
+        // Asignamos el color gris oscuro al fondo del JScrollPane y su Viewport
+        // para que el título del TitledBorder y las esquinas no se vean blancos.
+        s.setBackground(bgPaneles);
+        s.getViewport().setBackground(bgPaneles);
+
+        s.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(borderColor),
+                tit,
+                TitledBorder.LEFT,
+                TitledBorder.TOP,
+                new Font("SansSerif", Font.ITALIC, 11),
+                borderColor)
+        );
+
+        // Bloquear estrictamente los tamaños para que no se deformen
+        s.setPreferredSize(fixedSize);
+        s.setMinimumSize(fixedSize);
+        s.setMaximumSize(fixedSize);
+
+        return s;
+    }
+}
+
+/*package Concurrente;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
