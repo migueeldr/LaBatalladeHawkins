@@ -93,8 +93,10 @@ public class Niño extends Thread{
             mapa.comprobarPausa();
 
             try{
+                mapa.getSotano_byersPreparacion().add(this);
                 long aleatorio= (long) (Math.random() * 1000+1000);
                 sleep(aleatorio);
+                mapa.getSotano_byersPreparacion().remove(this);
                 mapa.comprobarPausa();
             }
             catch(Exception e){

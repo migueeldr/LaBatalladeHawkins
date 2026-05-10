@@ -15,6 +15,7 @@ public class Ciudad {
     private AtomicInteger contador_capturas;
     private List<Niño> zona_calle_principal = Collections.synchronizedList(new ArrayList<>());
     private List<Niño> zona_sotano_byers = Collections.synchronizedList(new ArrayList<>());
+    private List<Niño> sotano_byersPreparacion = Collections.synchronizedList(new ArrayList<>());
     private List<Niño> zona_radio_wsqk = Collections.synchronizedList(new ArrayList<>());
 
     private List<Niño> zonaBosque = Collections.synchronizedList(new ArrayList<>());
@@ -87,6 +88,10 @@ public class Ciudad {
         }
         decrementar_contador_sangre();
         notifyAll();
+    }
+
+    public List<Niño> getSotano_byersPreparacion() {
+        return sotano_byersPreparacion;
     }
 
     public class Portal {
