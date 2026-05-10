@@ -9,7 +9,7 @@ public class InterfazHawkins extends JFrame {
     private Ciudad mapa;
     private Eventos eventos;
 
-    // Paleta de colores suaves (Menos fosforitos)
+    // colores
     private final Color bgPrincipal = new Color(35, 35, 35);
     private final Color bgPaneles = new Color(45, 45, 45);
     private final Color bgTexto = new Color(30, 30, 30);
@@ -21,13 +21,13 @@ public class InterfazHawkins extends JFrame {
     private final Color naranja = new Color(244, 164, 96); // SandyBrown
     private final Color magenta = new Color(186, 47, 191, 255); // Gainsboro
 
-    // Componentes de Status
+    // contadores
     private JLabel lblSangre, lblCapturas, lblEventoActual;
 
-    // Paneles Laterales
+    // texto zonas
     private JTextArea txtCallePrincipal, txtRadioWsqk, txtColmena;
 
-    // Filas Centrales (Portales y Zonas UD)
+    // filas cola poertal ud
     private JTextArea[] txtEsperaPortal = new JTextArea[4];
     private JTextArea[] txtGrupoFormado = new JTextArea[4];
     private JTextArea[] txtCruzando = new JTextArea[4];
@@ -44,7 +44,7 @@ public class InterfazHawkins extends JFrame {
         setLayout(new BorderLayout(15, 15));
         getContentPane().setBackground(bgPrincipal);
 
-        // --- NORTE: STATUS GLOBAL ---
+        // area contadores
         JPanel panelStatus = new JPanel(new GridLayout(1, 3));
         panelStatus.setBackground(bgPaneles);
         panelStatus.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -56,7 +56,7 @@ public class InterfazHawkins extends JFrame {
         panelStatus.add(lblEventoActual);
         add(panelStatus, BorderLayout.NORTH);
 
-        // --- OESTE: HAWKINS LATERAL ---
+        // zonas hawkins
         JPanel panelOeste = new JPanel(new GridLayout(2, 1, 10, 10));
         panelOeste.setOpaque(false);
         panelOeste.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 0));
@@ -68,16 +68,16 @@ public class InterfazHawkins extends JFrame {
         panelOeste.add(crearPanelScroll("RADIO WSQK ", txtRadioWsqk, verde, new Dimension(220, 0)));
         add(panelOeste, BorderLayout.WEST);
 
-        // --- ESTE: COLMENA LATERAL ---
+        // colmena
         JPanel panelEste = new JPanel(new BorderLayout());
         panelEste.setOpaque(false);
         panelEste.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 
-        txtColmena = crearTextArea();
-        panelEste.add(crearPanelScroll("COLMENA ", txtColmena, rojo, new Dimension(220, 0)), BorderLayout.CENTER);
+        txtColmena = crearTextAreaUD();
+        panelEste.add(crearPanelScroll("COLMENA ", txtColmena, rojo, new Dimension(220, 0)));
         add(panelEste, BorderLayout.EAST);
 
-        // --- CENTRO: EL EJE DE PORTALES (TAMAÑOS FIJOS) ---
+        // portales
         JPanel panelEje = new JPanel();
         panelEje.setLayout(new BoxLayout(panelEje, BoxLayout.Y_AXIS));
         panelEje.setOpaque(false);
@@ -106,39 +106,39 @@ public class InterfazHawkins extends JFrame {
         fila.setBackground(bgPaneles);
         fila.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 
-        // Tamaños estrictamente fijos para cada fase
+
         Dimension dimSotano = new Dimension(160, 130);
         Dimension dimGrupo = new Dimension(160, 130);
         Dimension dimCruzando = new Dimension(160, 130);
         Dimension dimUDNiños = new Dimension(220, 130);
-        Dimension dimUDDemos = new Dimension(140, 130);
+        Dimension dimUDDemos = new Dimension(160, 130);
 
-        // 1. Sótano: Espera
+        // colas sotano
         txtEsperaPortal[i] = crearTextArea();
         txtEsperaPortal[i].setForeground(amarillo);
         fila.add(Box.createRigidArea(new Dimension(5, 0)));
         fila.add(crearPanelScroll("SÓTANO: Cola ("+cap+")", txtEsperaPortal[i], amarillo, dimSotano));
 
-        // 2. Grupo Formado
+        // grupos
         txtGrupoFormado[i] = crearTextArea();
         txtGrupoFormado[i].setForeground(naranja);
         fila.add(Box.createRigidArea(new Dimension(5, 0)));
         fila.add(crearPanelScroll("GRUPO FORMADO", txtGrupoFormado[i], naranja, dimGrupo));
 
-        // 3. Cruzando
+        // dentro portal
         txtCruzando[i] = crearTextArea();
         txtCruzando[i].setForeground(azul);
         txtCruzando[i].setFont(new Font("Monospaced", Font.BOLD, 14));
         fila.add(Box.createRigidArea(new Dimension(5, 0)));
         fila.add(crearPanelScroll("ATRAVESANDO PORTAL", txtCruzando[i], azul, dimCruzando));
 
-        // 4. Upside Down (Niños)
+        // niños ud
         txtNiñosUD[i] = crearTextArea();
         txtNiñosUD[i].setForeground(magenta);
         fila.add(Box.createRigidArea(new Dimension(10, 0)));
         fila.add(crearPanelScroll(nombre + " (Niños)", txtNiñosUD[i], magenta, dimUDNiños));
 
-        // 5. Upside Down (Demos)
+        // dem ud
         txtDemosUD[i] = crearTextArea();
         txtDemosUD[i].setForeground(rojo);
         fila.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -150,13 +150,11 @@ public class InterfazHawkins extends JFrame {
     }
 
     private void refrescarDatos() {
-        // Refrescar Status y Zonas Laterales
         lblSangre.setText("🩸 SANGRE: " + mapa.getContador_sangre());
         lblCapturas.setText("👤 CAPTURAS: " + mapa.getContador_capturas());
         String[] evs = {"NORMALIDAD", "APAGÓN", "TORMENTA", "ELEVEN", "RED MENTAL"};
         lblEventoActual.setText("EVENTO: " + evs[eventos.getEventoActual()]);
 
-        // Listar los niños en las zonas seguras globales
         txtCallePrincipal.setText(listarHilos(mapa.getZonaCallePrincipal()));
         txtRadioWsqk.setText(listarHilos(mapa.getZonaRadioWsqk()));
         txtColmena.setText(listarHilos(mapa.getZonaColmena()));
@@ -165,13 +163,10 @@ public class InterfazHawkins extends JFrame {
         for (int i = 0; i < 4; i++) {
             Ciudad.Portal portalActual = portals[i];
 
-            // 1. Mostrar niños reales esperando en cola de este portal
             txtEsperaPortal[i].setText(listarHilos(portalActual.getColaEspera()));
 
-            // 2. Mostrar niños reales que han formado el grupo y están esperando que el portal se libere
             txtGrupoFormado[i].setText(listarHilos(portalActual.getGrupoFormado()));
 
-            // 3. Mostrar el único niño que está cruzando (ejecutando el sleep real)
             Niño cruzando = portalActual.getNiñoCruzando();
             if (cruzando != null) {
                 txtCruzando[i].setText("[" + cruzando.getIdNiño() + "]");
@@ -179,10 +174,8 @@ public class InterfazHawkins extends JFrame {
                 txtCruzando[i].setText("---");
             }
 
-            // 4. Mostrar estado de las zonas del Upside Down (Niños)
             txtNiñosUD[i].setText(listarHilos(mapa.getListaUbicacionN(i + 3)));
 
-            // 5. Mostrar estado de las zonas del Upside Down (Demogorgons)
             StringBuilder sbDemos = new StringBuilder();
             List<Demogorgon> demos = mapa.getListaUbicacionD(i + 3);
             synchronized (demos) {
@@ -222,13 +215,18 @@ public class InterfazHawkins extends JFrame {
         a.setMargin(new Insets(5, 5, 5, 5));
         return a;
     }
+    private JTextArea crearTextAreaUD() {
+        JTextArea a = new JTextArea();
+        a.setBackground(bgTexto);
+        a.setForeground(rojo);
+        a.setEditable(false);
+        a.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        a.setMargin(new Insets(5, 5, 5, 5));
+        return a;
+    }
 
     private JScrollPane crearPanelScroll(String tit, JTextArea a, Color borderColor, Dimension fixedSize) {
         JScrollPane s = new JScrollPane(a);
-
-        // --- CAMBIOS APLICADOS AQUÍ ---
-        // Asignamos el color gris oscuro al fondo del JScrollPane y su Viewport
-        // para que el título del TitledBorder y las esquinas no se vean blancos.
         s.setBackground(bgPaneles);
         s.getViewport().setBackground(bgPaneles);
 
@@ -241,7 +239,6 @@ public class InterfazHawkins extends JFrame {
                 borderColor)
         );
 
-        // Bloquear estrictamente los tamaños para que no se deformen
         s.setPreferredSize(fixedSize);
         s.setMinimumSize(fixedSize);
         s.setMaximumSize(fixedSize);

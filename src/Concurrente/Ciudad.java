@@ -106,7 +106,6 @@ public class Ciudad {
         private int restantesGrupo = 0;   // hilos del grupo que quedan por cruzar
         private boolean portalOcupado = false;
 
-        // --- NUEVAS ESTRUCTURAS PARA SEGUIMIENTO REAL EN INTERFAZ ---
         private List<Niño> colaEspera = new ArrayList<>();
         private List<Niño> grupoFormado = new ArrayList<>();
         private Niño niñoCruzando = null;
@@ -118,7 +117,6 @@ public class Ciudad {
             this.destino = destino;
         }
 
-        // --- GETTERS SEGUROS PARA LA INTERFAZ GRÁFICA ---
         public List<Niño> getColaEspera() {
             lock.lock();
             try { return new ArrayList<>(colaEspera); } finally { lock.unlock(); }
@@ -160,14 +158,14 @@ public class Ciudad {
             comprobarPausa();
             lock.lock();
             try {
-                colaEspera.add(n); // [REALIDAD] El niño entra a la cola
+                colaEspera.add(n);
                 esperandoHawkins++;
                 pEsperando++;
 
                 while (restantesGrupo == 0) {
                     if (esperandoHawkins >= tGrupo && esperndoUpsideDown == 0) {
                         restantesGrupo = tGrupo;
-                        // [REALIDAD] Trasladamos 'tGrupo' niños de la cola al grupo cerrado
+
                         for (int i = 0; i < tGrupo; i++) {
                             if (!colaEspera.isEmpty()) {
                                 grupoFormado.add(colaEspera.remove(0));
@@ -185,17 +183,14 @@ public class Ciudad {
                 comprobarPausa();
             }
 
-            // pasan de uno en uno
             comprobarPausa();
             lock.lock();
             try {
-                // Condición extra: Solo pueden avanzar los que están dentro del grupo formado
                 while (portalOcupado || esperndoUpsideDown > 0 || apagon_activo || !grupoFormado.contains(n)) {
                     condHabitual.await();
                 }
                 portalOcupado = true;
 
-                // [REALIDAD] El niño actual se asigna al carril de cruce
                 niñoCruzando = n;
                 grupoFormado.remove(n);
             } finally {
@@ -204,7 +199,7 @@ public class Ciudad {
             }
 
 
-            cruzar(n); // El hilo duerme 1s simulando el cruce
+            cruzar(n);
             moverNiño(n, origen, destino);
             log.escribirEvento("El niño " + n.getIdNiño() + " ha cruzado hacia " + destino);
 
@@ -239,7 +234,7 @@ public class Ciudad {
                 esperndoUpsideDown--;
                 colaEsperaContrario.remove(n);
                 portalOcupado = true;
-                niñoCruzando = n; // [REALIDAD] Niño que vuelve cruzando
+                niñoCruzando = n;
             }
             catch(Exception e){
                 esperndoUpsideDown--;
@@ -259,7 +254,7 @@ public class Ciudad {
             lock.lock();
             try {
                 portalOcupado = false;
-                niñoCruzando = null; // [REALIDAD] Ya terminó de cruzar
+                niñoCruzando = null;
 
                 condContrario.signalAll();
                 condHabitual.signalAll();
